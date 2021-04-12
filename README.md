@@ -21,3 +21,7 @@ As a stretch goal, the program will have the ability to test web pages with diff
 
 # Future Features
 * Ensure the program is accessibility engine agnostic (FE-10)
+
+# Usage
+
+Please see the [Axe-Core](https://github.com/dequelabs/axe-core) documentation for setting up the Axe-Core acessibility engine.
