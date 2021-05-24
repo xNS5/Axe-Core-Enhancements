@@ -5,10 +5,17 @@
   "description": "a Sails application",
   "keywords": [],
   "dependencies": {
+    "@axe-core/puppeteer": "^4.2.0",
+    "@axe-core/webdriverjs": "^4.2.0",
     "@sailshq/connect-redis": "^3.2.1",
     "@sailshq/lodash": "^3.10.3",
     "@sailshq/socket.io-redis": "^5.2.0",
+    "assert": "^2.0.0",
+    "axe-core": "^4.2.1",
+    "chromium": "^3.0.2",
     "diff": "^5.0.0",
+    "firefox": "^0.0.1",
+    "geckodriver": "^2.0.0",
     "growl": "^1.10.5",
     "grunt": "^1.4.0",
     "lodash": "^4.17.21",
@@ -23,12 +30,13 @@
     "xmlhttprequest-ssl": "^1.6.2"
   },
   "devDependencies": {
-    "eslint": "^7.26.0"
+    "eslint": "^7.26.0",
+    "puppeteer": "^8.0.0"
   },
   "scripts": {
     "start": "NODE_ENV=production node app.js",
     "test": "npm run lint && npm run custom-tests && echo 'Done.'",
-    "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives && echo '✔  Your .js files look good.'",
+    "lint": "node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives && echo '✔  Your .js files look good.'",
     "custom-tests": "echo \"(No other custom tests yet.)\" && echo"
   },
   "main": "app.js",
