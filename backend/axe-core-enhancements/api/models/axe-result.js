@@ -4,7 +4,7 @@
 * as of 5/24/21 we are awaiting the release of VMWARE's CREST engine for release.
 * */
 
-class axe_result{
+class AxeResult{
   #id = 0;
   #sc = [];
   #impact = "";
@@ -12,6 +12,14 @@ class axe_result{
   #code = "";
   #targets = [];
   #summary = "";
+
+  //empty constructor
+  constructor() {
+  }
+
+  // constructor passing the result object
+  constructor(results) {
+  }
 
   //the issue ID, the WCAG success criteria, impact, description of the violation, code snippet, code target, summary.
   constructor(id, wcac_sc, impact, description, code, targets, summary){

@@ -1,9 +1,10 @@
 const { AxePuppeteer } = require ('@axe-core/puppeteer');
 const puppeteer = require ('puppeteer');
 
-const url_list = ['https://www.primebellingham.com', 'https://www.reddit.com'];
 
-class axe_runner{
+const url_list = ['https://www.primebellingham.com'];
+
+class AxeRunner {
   run(url_list) {
     (async () => {
       //note: make sure to run node_modules/puppeteer/install.js to get both firefox and chrome switching available
@@ -13,9 +14,13 @@ class axe_runner{
           const page = await browser.newPage();
           await page.goto(url_list[i]);
           const results = await new AxePuppeteer(page).analyze();
-          return results.violations[0].id;
+          // const axe = new AxeResult();
+
+          for(let j = 0; j < results.violations.length; j++){
+            console.log(results.violations[j]);
+          }
         })
-      )).filter(e =>e.status === "fulfilled")
+      )).filter(e => e.status === "fulfilled")
         .map(e => e.value);
       console.log(violations);
       await browser.close();
@@ -24,7 +29,6 @@ class axe_runner{
 }
 
 
-const runner = new axe_runner();
-
+const runner = new AxeRunner();
 runner.run(url_list);
 
