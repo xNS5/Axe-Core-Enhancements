@@ -10,14 +10,6 @@ const {AceResult} = require('../models/axe-result.js');
 class AxeRunner {
 
   run(url_list) {
-    function resolveAfter2Seconds() {
-      return new Promise(resolve => {
-        setTimeout(() => {
-          resolve('resolved');
-        }, 2000);
-      });
-    }
-
     let results = [];
     (async () => {
       /*
@@ -30,7 +22,7 @@ class AxeRunner {
           let results = [];
           const page = await browser.newPage();
           await page.goto(url_list[i]);
-          results = await new AxePuppeteer(page).disableFrame('sandbox').analyze().catch(err => {
+          results = await new AxePuppeteer(page).analyze().catch(err => {
             if(err){
               console.log("AxeRunner - Analysis Error: " + err.message);
             }
@@ -44,10 +36,12 @@ class AxeRunner {
         ace_result.push( new AceResult(results[i].testEngine.name, results[i]));
       }
       console.log(ace_result);
-
     })();
   }
 }
 
 exports.AxeRunner = AxeRunner;
+
+var t = new AxeRunner;
+t.run(['https://www.reddit.com/r/news/new/?count=25&after=t3_nl2jb8']);
 
