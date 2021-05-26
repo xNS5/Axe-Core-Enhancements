@@ -22,6 +22,14 @@ class AceResult{
     return this.url;
   }
 
+  get violations(){
+    return this.violations;
+  }
+
+  get incomplete(){
+    return this.incomplete;
+  }
+
   // parseSC(node){
   //   let re = new RegExp('^wcag([0-9]+$)|^(best practice)$');
   //   return node.matchAll(re);
