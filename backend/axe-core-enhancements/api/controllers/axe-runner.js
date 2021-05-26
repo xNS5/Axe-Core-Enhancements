@@ -14,15 +14,22 @@ const  {AceResult} = require('../models/axe-result.js');
 * */
 
 class AxeRunner {
-  run(url_list) {
+  run(name, tags, url_list) {
+    const config = {
+      product: name,
+      headless: true,
+      args:[]
+    }
     let results = [];
     (async () => {
-      const browser = await puppeteer.launch(/*{product: 'firefox', headless:false}*/{headless: false});
+      const browser = await puppeteer.launch({config});
       results = (await Promise.allSettled(
         [...Array(url_list.length)].map(async(_,i) => {
           const page = await browser.newPage();
-          await page.goto(url_list[i]);
-          // await page.setBypassCSP(true);
+          await page.setBypassCSP(true);
+          await page.goto(url_list[i], {
+            waitUntil: ['load', 'domcontentloaded'],
+          });
           results = await new AxePuppeteer(page).analyze().catch(err => {
             if(err){
               console.log("AxeRunner - Analysis Error: " + err.message);
@@ -45,5 +52,5 @@ class AxeRunner {
 exports.AxeRunner = AxeRunner;
 
 const t = new AxeRunner;
-t.run(['https://www.reddit.com/', 'https://github.com/puppeteer/puppeteer/issues/3718', 'https://wandke.com']);
+t.run('firefox',[],['https://haikyuu.org/manga/haikyuu/chapter-378/']);
 

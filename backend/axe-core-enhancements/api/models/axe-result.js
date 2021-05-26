@@ -30,10 +30,12 @@ class AceResult{
     return this.incomplete;
   }
 
-  // parseSC(node){
-  //   let re = new RegExp('^wcag([0-9]+$)|^(best practice)$');
-  //   return node.matchAll(re);
-  // }
+  parseSC(){
+   for(let i = 0; i < this.violations.length;i++){
+     let curr_violation = this.violations[i];
+
+   }
+  }
 }
 
 exports.AceResult = AceResult;
