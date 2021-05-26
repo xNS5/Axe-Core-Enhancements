@@ -4,50 +4,28 @@
 * as of 5/24/21 we are awaiting the release of VMWARE's CREST engine for release.
 * */
 
-class AxeResult{
-  #id = 0;
-  #sc = [];
-  #impact = "";
-  #description = "";
-  #code = "";
-  #targets = [];
-  #summary = "";
-
-  //empty constructor
-  constructor() {
-  }
-
-  // constructor passing the result object
-  constructor(results) {
-  }
+class AceResult{
+  url = "";
+  violations;
+  incomplete;
 
   //the issue ID, the WCAG success criteria, impact, description of the violation, code snippet, code target, summary.
-  constructor(id, wcac_sc, impact, description, code, targets, summary){
-    this.#id = id;
-    this.#sc = wcac_sc;
-    this.#impact = impact;
-    this.#description = description;
-    this.#code = code;
-    this.#targets = targets;
-    this.#summary = summary;
-  }
-
-  get v_id(){ return this.#id;  }
-  get v_impact(){ return this.#impact; }
-  get v_desc(){ return this.#description; }
-  get v_code(){ return this.#code;  }
-  get v_summary(){ return this.#summary; }
-
-  *get v_sc(){
-    for(const criteria of this.#sc){
-      yield criteria;
+  constructor(engine, results){
+    if(engine === 'axe-core'){
+      this.url = results.url;
+      this.violations = results.violations;
+      this.incomplete = results.incomplete;
     }
   }
 
-  *get v_target(){
-    for(const target of this.#targets){
-      yield target;
-    }
+  get url(){
+    return this.url;
   }
 
+  // parseSC(node){
+  //   let re = new RegExp('^wcag([0-9]+$)|^(best practice)$');
+  //   return node.matchAll(re);
+  // }
 }
+
+exports.AceResult = AceResult;
