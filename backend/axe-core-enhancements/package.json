@@ -17,7 +17,6 @@
     "chromedriver": "^90.0.1",
     "chromium": "^3.0.2",
     "diff": "^5.0.0",
-    "edgedriver": "^4.17134.1",
     "eslint": "^7.27.0",
     "geckodriver": "^2.0.0",
     "growl": "^1.10.5",
