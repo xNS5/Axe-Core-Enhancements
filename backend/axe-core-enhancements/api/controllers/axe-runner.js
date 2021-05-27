@@ -65,7 +65,7 @@ class AxeRunner {
           let axe_puppeteer = await new AxePuppeteer(page);
 
           //if the user selected tags to use, it runs the .withTags() function, otherwise it doesn't.
-          if(tags.length > 0){
+          if(tags.length > 1){
             axe_puppeteer = axe_puppeteer.withTags(tags);
           }
           inner_results = axe_puppeteer.analyze().catch(err => {
@@ -86,7 +86,7 @@ class AxeRunner {
           console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
         }
       }
-      console.log(ace_result);
+      return ace_result;
     })();
 
   }
@@ -95,5 +95,5 @@ class AxeRunner {
 exports.AxeRunner = AxeRunner;
 
 const t = new AxeRunner;
-t.run('chrome','',['https://haikyuu.org/manga/haikyuu/chapter-378/']);
+t.run('firefox',['wcag2a'],['https://www.w3.org/WAI/demos/bad/before/home.html']);
 
