@@ -47,7 +47,7 @@ class AceResult{
     let section508_regex = new RegExp('^(section508)');
     let wcag_level_regex = new RegExp('^(wcag)(21|2)');
     let temp_wcag_level = new RegExp('^(wcag21)');
-    let ace_regex = new RegExp('^(ACE)$');
+    let ace_regex = new RegExp('^(ACT)$');
     let best_practices_regex = new RegExp('^(best-practice)$')
 
    if(violation.length > 0){
@@ -75,8 +75,6 @@ class AceResult{
            new_tag = `Accessibility Conformance Testing`;
          } else if(best_practices_regex.test(tag)){
            new_tag = `Deque Best Practices`;
-         } else {
-           new_tag = `Accessibility Conformance Testing`;
          }
          if(new_tag){
            violation[i].tags[j] = new_tag;
