@@ -3,6 +3,19 @@
 * adding a new accessibility engine would be as painless as possible. Axe uses a different output format compared to the IBM Equal Access program, and
 * as of 5/24/21 we are awaiting the release of VMWARE's CREST engine for release.
 * */
+// class AceNode{
+//   description;
+//   impact;
+//   html;
+//   target;
+//   summary;
+//
+//   constructor(node){
+//     this.impact = node.impact;
+//     this.html = node.html;
+//   }
+// }
+
 
 class AceResult{
   url = "";
@@ -17,8 +30,7 @@ class AceResult{
       this.url = results.url;
       this.violations = this.parseTags(results.violations);
       this.incomplete = this.parseTags(results.incomplete);
-      this.violations.map(e => console.log(e.tags));
-
+      console.log(this.violations[0].nodes);
     }
   }
 
@@ -42,7 +54,7 @@ class AceResult{
     return this.incomplete_nodes;
   }
 
-  parseTags(violation){
+  parseTags(violations){
     let wcag_regex = new RegExp('^(wcag)([0-9]+)$');
     let section508_regex = new RegExp('^(section508)');
     let wcag_level_regex = new RegExp('^(wcag)(21|2)');
@@ -50,11 +62,11 @@ class AceResult{
     let ace_regex = new RegExp('^(ACT)$');
     let best_practices_regex = new RegExp('^(best-practice)$')
 
-   if(violation.length > 0){
-     for(let i = 0; i < violation.length; i++){
-       for(let j = 0; j < violation[i].tags.length; j++){
-         violation[i].tags = violation[i].tags.filter(e => !e.match(new RegExp('^(cat.*)')));
-         let tag = violation[i].tags[j];
+   if(violations.length > 0){
+     for(let i = 0; i < violations.length; i++){
+       for(let j = 0; j < violations[i].tags.length; j++){
+         violations[i].tags = violations[i].tags.filter(e => !e.match(new RegExp('^(cat.*)')));
+         let tag = violations[i].tags[j];
          let new_tag;
          if(wcag_regex.test(tag)){
            new_tag = `WCAG ${tag.slice(4).split('').join('.')}`
@@ -77,10 +89,10 @@ class AceResult{
            new_tag = `Deque Best Practices`;
          }
          if(new_tag){
-           violation[i].tags[j] = new_tag;
+           violations[i].tags[j] = new_tag;
          }
        }
-      /*       violation[i].tags = violation[i].tags.filter(tag => !tag.match(new RegExp('^(cat.)'))).map(tag =>{
+/*       violation[i].tags = violation[i].tags.filter(tag => !tag.match(new RegExp('^(cat.)'))).map(tag =>{
          let wcag_regex = new RegExp('^(wcag)([0-9]+)$');
          let section508_regex = new RegExp('^(section508)');
          let wcag_level_regex = new RegExp('^(wcag)(21|2)');
@@ -114,8 +126,14 @@ class AceResult{
        });*/
      }
    }
-   return violation;
+   return violations;
   }
+
+  // parseNodes(nodes){
+  //   for(let i = 0; i < nodes.length; i++){
+  //
+  //   }
+  // }
 }
 
 exports.AceResult = AceResult;
