@@ -24,8 +24,6 @@ const chrome_driver = require('chromedriver');
 const {AceResult} = require('../../models/aceResult.js');
 
 module.exports = {
-
-
   friendlyName: 'axe-runner',
   description: 'Runs the Deque labs Accessibility testing engine',
 
