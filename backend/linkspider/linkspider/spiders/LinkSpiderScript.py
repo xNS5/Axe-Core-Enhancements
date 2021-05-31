@@ -5,11 +5,11 @@ class HrefSpider(scrapy.Spider):
     start_urls = ["https://mywestern.wwu.edu/"]
 
     def parse(self, response):
+        newLinks = []
         links = response.xpath('//a/@href')
-        results = open("results.txt","w")
         for link in links:
             url = link.get()
             if(url[0:5] == 'https'):
-                results.write(url)
-                results.write("\n")
-        results.close()
+                newLinks.append(url)
+        #print(newLinks)
+        yield newLinks
