@@ -59,7 +59,6 @@ module.exports = {
     }
   },
 
-
   fn: async function (inputs) {
     const name = inputs.browser;
     const wcagLevel = inputs.wcagLevel;
@@ -93,62 +92,62 @@ module.exports = {
     }
 
 
-      const browser = await puppeteer.launch({product: name, headless: true});
-      results = (await Promise.allSettled(
-        [...Array(url_list.length)].map(async (_, i) => {
-          let inner_results;
-          const page = await browser.newPage();
-          await page.setBypassCSP(true);
-          await page.goto(url_list[i].url, {
-            waitUntil: ['load', 'domcontentloaded'],
-          });
+    const browser = await puppeteer.launch({product: name, headless: true});
+    results = (await Promise.allSettled(
+      [...Array(url_list.length)].map(async (_, i) => {
+        let inner_results;
+        const page = await browser.newPage();
+        await page.setBypassCSP(true);
+        await page.goto(url_list[i].url, {
+          waitUntil: ['load', 'domcontentloaded'],
+        });
 
-          /*
-          * Deleting iframes with sandbox attributes. In some cases, such as when running Axe-Core/puppeteer
-          * on https://haikyuu.org/manga/haikyuu/chapter-378/, there are a few iframes with sandboxes
-          * where js code can't be injected to test accessibility. In order to eliminate those errors,
-          * the iframe is simply deleted. Based on my research it has no effect on accessibility.
-          * */
+        /*
+        * Deleting iframes with sandbox attributes. In some cases, such as when running Axe-Core/puppeteer
+        * on https://haikyuu.org/manga/haikyuu/chapter-378/, there are a few iframes with sandboxes
+        * where js code can't be injected to test accessibility. In order to eliminate those errors,
+        * the iframe is simply deleted. Based on my research it has no effect on accessibility.
+        * */
 
-          // let iframe_var = await page.$x("//iframe[contains(.,sandbox),contains(.,_url: 'about:blank')]");
-          // console.log(iframe_var.length);
-          // if (iframe_var.length > 0) {
-          //   for (let iframe of iframe_var) {
-          //     await page.evaluate(el => el.remove(), iframe).catch(err => {
-          //       if (err) {
-          //         console.log(`AxeRunner: Error removing iframe with sandbox attribute: ${err.toString()}`);
-          //       }
-          //     });
-          //   }
-          // }
+        // let iframe_var = await page.$x("//iframe[contains(.,sandbox),contains(.,_url: 'about:blank')]");
+        // console.log(iframe_var.length);
+        // if (iframe_var.length > 0) {
+        //   for (let iframe of iframe_var) {
+        //     await page.evaluate(el => el.remove(), iframe).catch(err => {
+        //       if (err) {
+        //         console.log(`AxeRunner: Error removing iframe with sandbox attribute: ${err.toString()}`);
+        //       }
+        //     });
+        //   }
+        // }
 
-          // Returns a new promise
-          let axe_puppeteer = await new AxePuppeteer(page).disableFrame("*");
+        // Returns a new promise
+        let axe_puppeteer = await new AxePuppeteer(page).disableFrame("*");
 
 
-          //if the user selected tags to use, it runs the .withTags() function, otherwise it doesn't.
-          if (tags.length > 1) {
-            axe_puppeteer = axe_puppeteer.withTags(tags);
-          }
-          inner_results = axe_puppeteer.analyze().catch(err => {
-            if (err) {
-              console.log(`AxeRunner: Error running Axe-Core on URL: ${url_list[i]}: ${err.toString()} `);
-            }
-          });
-
-          return ((inner_results.length === 0) ? null : inner_results);
-        })
-      )).filter(e => e.status === "fulfilled").map(e => e.value);
-      await browser.close();
-      console.log(results);
-      const ace_result = [];
-      for (let i = 0; i < results.length; i++) {
-        try {
-          ace_result.push(new AceResult(results[i].testEngine.name, results[i]));
-        } catch (err) {
-          console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
+        //if the user selected tags to use, it runs the .withTags() function, otherwise it doesn't.
+        if (tags.length > 1) {
+          axe_puppeteer = axe_puppeteer.withTags(tags);
         }
+        inner_results = axe_puppeteer.analyze().catch(err => {
+          if (err) {
+            console.log(`AxeRunner: Error running Axe-Core on URL: ${url_list[i]}: ${err.toString()} `);
+          }
+        });
+
+        return ((inner_results.length === 0) ? null : inner_results);
+      })
+    )).filter(e => e.status === "fulfilled").map(e => e.value);
+    await browser.close();
+    console.log(results);
+    const ace_result = [];
+    for (let i = 0; i < results.length; i++) {
+      try {
+        ace_result.push(new AceResult(results[i].testEngine.name, results[i]));
+      } catch (err) {
+        console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
       }
-      return;
+    }
+    return;
   }
 };
