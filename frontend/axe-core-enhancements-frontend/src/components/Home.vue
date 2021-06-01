@@ -57,7 +57,10 @@
         <div class="inputPages">
           <h2>Test Page</h2>
           <div class="runButton">
-            <button v-on:click="runAxe"> Run </button>
+            <button v-on:click="runAxe"> Run Axe </button>
+          </div>
+          <div class="runButton">
+            <button v-on:click="testFile"> Test File Download </button>
           </div>
           <div v-for="(page, index) in testForm.urls" v-bind:key="index" class="row">
             <label for="URL@{{index}}">
@@ -182,24 +185,25 @@ export default {
     runAxe: function() {
       console.log(this.testForm);
       try{
-        // axios.post("http://localhost:1337/api/v1/axe-runner", this.testForm)
-        //     .then((result) => console.log(result));
-        axios({
-          url: 'http://localhost:1337/api/v1/get-file', //your url
-          method: 'GET',
-          responseType: 'blob', // important
-        }).then((response) => {
-          const url = window.URL.createObjectURL(new Blob([response.data]));
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', 'file.txt'); //or any other extension
-          document.body.appendChild(link);
-          link.click();
-        });
-        // axios.get("http://localhost:1337/api/v1/get-file").then((result)  => console.log(result.data));
+        axios.post("http://localhost:1337/api/v1/axe-runner", this.testForm)
+            .then((result) => console.log(result));
       }catch(e){
         alert(e.toString());
       }
+    },
+    testFile(){
+      axios({
+        url: 'http://localhost:1337/api/v1/get-file',
+        method: 'GET',
+        responseType: 'blob',
+      }).then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'file.txt'); //or any other extension
+        document.body.appendChild(link);
+        link.click();
+      });
     },
     addTest() {
       this.testForm.pages.push({url: ''})

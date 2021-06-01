@@ -21,7 +21,7 @@ module.exports.routes = {
 
   // '/': { view: 'pages/homepage' },
   'POST /api/v1/axe-runner': {controller: 'AxeController', action: 'runAxe'},
-  'GET /api/v1/get-file': { controller: 'SendFileController', action: 'sendfile' },
+  'GET /api/v1/get-file': { controller: 'FileController', action: 'sendfile' },
 
 
   /***************************************************************************
