@@ -128,7 +128,8 @@ module.exports = {
         //   }
         // }
 
-        // Returns a new promise
+        // Disables iFrames. Puppeteer has an intermittent issue with iFrames to the point where
+        //it was affecting result output, so until that's resolved they should be disabled for the time being.
         let axe_puppeteer = await new AxePuppeteer(page).disableFrame("*");
 
         //if the user selected tags to use, it runs the .withTags() function, otherwise it doesn't.
