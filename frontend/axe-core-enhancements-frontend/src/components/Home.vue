@@ -182,8 +182,21 @@ export default {
     runAxe: function() {
       console.log(this.testForm);
       try{
-        axios.post("http://localhost:1337/api/v1/axe-runner", this.testForm)
-            .then((result) => console.log(result));
+        // axios.post("http://localhost:1337/api/v1/axe-runner", this.testForm)
+        //     .then((result) => console.log(result));
+        axios({
+          url: 'http://localhost:1337/api/v1/get-file', //your url
+          method: 'GET',
+          responseType: 'blob', // important
+        }).then((response) => {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', 'file.txt'); //or any other extension
+          document.body.appendChild(link);
+          link.click();
+        });
+        // axios.get("http://localhost:1337/api/v1/get-file").then((result)  => console.log(result.data));
       }catch(e){
         alert(e.toString());
       }

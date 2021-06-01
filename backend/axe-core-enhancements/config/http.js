@@ -29,16 +29,44 @@ module.exports.http = {
     *                                                                          *
     ***************************************************************************/
 
-    // order: [
-    //   'cookieParser',
-    //   'session',
-    //   'bodyParser',
-    //   'compress',
-    //   'poweredBy',
-    //   'router',
-    //   'www',
-    //   'favicon',
-    // ],
+    order: [
+      'cookieParser',
+      'session',
+      'bodyParser',
+      'compress',
+      'poweredBy',
+      'appRequestLogger',
+      'router',
+      'www',
+      'favicon',
+    ],
+
+    appRequestLogger: function (req, res, next) {
+      const env = process.env.NODE_ENV || 'development';
+      sails.log.debug('<<------------------------------');
+      sails.log.debug('Requested data :: ');
+      sails.log.debug('  ', req.method, req.url);
+      sails.log.debug('   Headers:');
+      sails.log.debug(req.headers);
+      if (env.toLowerCase() !== 'production') {
+        sails.log.debug('   Params:');
+        sails.log.debug(req.params);
+        sails.log.debug('   Body:');
+        sails.log.debug(req.body);
+      }
+      sails.log.debug('------------------------------>>');
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD');
+      res.header('Allow', 'GET, POST, PUT, DELETE, OPTIONS, HEAD');
+      res.header('X-Powered-By', '');
+
+      if (req.method === 'OPTIONS' && req.url.indexOf('graphql') > -1) {
+        return res.status(200).send();
+      } else {
+        return next();
+      }
+    }
 
 
     /***************************************************************************
