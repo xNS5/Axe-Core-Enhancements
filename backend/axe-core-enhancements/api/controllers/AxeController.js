@@ -155,7 +155,7 @@ module.exports = {
         console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
       }
     }
-    return;
+    return ace_result;
   }
 };
 
