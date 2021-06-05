@@ -21,7 +21,7 @@ const puppeteer = require ('puppeteer');
 const AxeBuilder = require('@axe-core/webdriverjs');
 const WebDriver = require('selenium-webdriver');
 const chrome_driver = require('chromedriver');
-const  {AceResult} = require('../models/axe-result.js');
+const {AceResult} = require('./api/models/aceResult');
 
 
 
@@ -50,19 +50,19 @@ class AxeRunner {
           * the iframe is simply deleted. Based on my research it has no effect on accessibility.
           * */
 
-          let iframe_var = await page.$x("//iframe[contains(.,sandbox)]");
-          if(iframe_var.length > 0){
-            for(let iframe of iframe_var){
-              await page.evaluate(el => el.remove(), iframe).catch(err =>{
-                if(err){
-                  console.log(`AxeRunner: Error removing iframe with sandbox attribute: ${err.toString()}`);
-                }
-              });
-            }
-          }
+          // let iframe_var = await page.$x("//iframe[contains(.,hidden)]");
+          // if(iframe_var.length > 0){
+          //   for(let iframe of iframe_var){
+          //     await page.evaluate(el => el.remove(), iframe).catch(err =>{
+          //       if(err){
+          //         console.log(`AxeRunner: Error removing iframe with sandbox attribute: ${err.toString()}`);
+          //       }
+          //     });
+          //   }
+          // }
 
           // Returns a new promise
-          let axe_puppeteer = await new AxePuppeteer(page);
+          let axe_puppeteer = await new AxePuppeteer(page).disableFrame("*");
 
           //if the user selected tags to use, it runs the .withTags() function, otherwise it doesn't.
           if(tags.length > 1){
@@ -78,22 +78,24 @@ class AxeRunner {
         })
       )).filter(e => e.status === "fulfilled").map(e => e.value);
       await browser.close();
-      let ace_result = [];
-      for(let i = 0; i < results.length; i++) {
-        try{
-          ace_result.push(new AceResult(results[i].testEngine.name, results[i]));
-        }catch(err) {
-          console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
-        }
-      }
-      return ace_result;
+      console.log(results);
+      // let ace_result = [];
+      // for(let i = 0; i < results.length; i++) {
+      //   try{
+      //     if(results[i].length > 0){
+      //       ace_result.push(new AceResult(results[i].testEngine.name, results[i]));
+      //     }
+      //   }catch(err) {
+      //     console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
+      //   }
+      // }
+      // console.log(ace_result);
+      return;
     })();
-
   }
 }
 
 exports.AxeRunner = AxeRunner;
 
 const t = new AxeRunner;
-t.run('firefox',['wcag2a'],['https://www.w3.org/WAI/demos/bad/before/home.html']);
-
+t.run('firefox',[''],['https://sailsjs.com/documentation/concepts/actions-and-controllers/generating-actions-and-controllers']);
