@@ -1,6 +1,21 @@
+<!-- TODO: 
+  Add css for errors
+  Put Run button bellow the rest of the form, centered on the page
+  Put errors bellow the run button 
+  Make the layout a grid box 
+-->
+
 <template>
   <div id="home" role="main">
     <h1>WWU Axe-Core Enhancements</h1>
+    <div id="errors" v-if="error.length">
+      <h2>Please correct the following errors</h2>
+      <ul>
+        <li v-for="e in error" v-bind:key="e.id">
+          {{e}}
+        </li>
+      </ul>
+    </div>
     <div id="mainContainer" class="row">
       <div id="testSelection" class="column">
         <div class="selectEngine">
@@ -48,26 +63,26 @@
         <div class="inputPages">
           <h2>Test Page</h2>
           <div class="runButton">
-            <button v-on:click="runAxe"> Run </button>
+          <button v-on:click="runAxe"> Run </button>
           </div>
           <div v-for="(page, index) in testForm[0].pages" v-bind:key="index" class="row">
             <label for="URL@{{index}}">
               <div class="addButton">
-<!--                @TODO find a way to have additional url entries stacked + increase size of text box-->
-                <input v-model="page.url" type="text" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
+<!--              @TODO find a way to have additional url entries stacked + increase size of text box-->
+                <input v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
                 <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest">
-                  <span class="icon"></span></button>
-              <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
-                <span class="icon"></span>
-              </button>
+                  <span class="icon"></span>
+                </button>
+                <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
+                  <span class="icon"></span>
+                </button>
               </div>
             </label>
-            </div>
-
-            </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -75,6 +90,7 @@ export default {
   name:'Home',
   data(){
     return{
+      error: [],
       testForm: [{
         engine:null,
         browser:null,
@@ -89,7 +105,31 @@ export default {
   methods: {
     runAxe() {
       console.log("getAxe", this.testForm);
-      this.$emit('loadAxe');
+      this.error = [];
+      if(!this.testForm[0].engine) {
+        this.error.push("Engine is required")
+      }
+      if(!this.testForm[0].browser) {
+        this.error.push("Browser is required")
+      }
+      var i;
+      for(i = 0; i < this.testForm[0].pages.length; i++){
+        if(this.testForm[0].pages[i].url == '') {
+          this.error.push("All urls are required")
+          break
+        }
+        try {
+          new URL(this.testForm[0].pages[i].url);
+        } catch(e) {
+          this.error.push(this.testForm[0].pages[i].url  + " is an invalid URL");
+        }
+      }
+      if(this.testForm[0].criteria[0] == false && this.testForm[0].criteria[1] == false) {
+        this.error.push("At least 1 WCAG level is required")
+      }
+      if(this.error.length == 0) {
+        this.$emit('loadAxe');
+      }
     },
     addTest() {
       this.testForm[0].pages.push({url: ''})
