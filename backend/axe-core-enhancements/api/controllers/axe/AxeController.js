@@ -28,7 +28,7 @@ const puppeteer = require('puppeteer');
 const AxeBuilder = require('@axe-core/webdriverjs');
 const WebDriver = require('selenium-webdriver');
 const chrome_driver = require('chromedriver');
-const {AceResult} = require('../models/aceResult.js');
+const {AceResult} = require('../../models/aceResult.js');
 
 module.exports = {
   friendlyName: 'axe-runner',
