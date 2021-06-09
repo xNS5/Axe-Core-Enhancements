@@ -11,7 +11,7 @@ BOT_NAME = 'linkspider'
 
 SPIDER_MODULES = ['linkspider.spiders']
 NEWSPIDER_MODULE = 'linkspider.spiders'
-
+LOG_ENABLED = False
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'linkspider (+http://www.yourdomain.com)'
