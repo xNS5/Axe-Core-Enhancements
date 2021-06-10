@@ -185,13 +185,13 @@ export default {
     runAxe: function() {
       console.log(this.testForm);
       try{
-        axios.post("http://localhost:1337/api/v1/axe-runner", this.testForm)
+        axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
             .then((result) => console.log(result));
       }catch(e){
         alert(e.toString());
       }
     },
-    testFile(){
+    testFile: function(){
       axios({
         url: 'http://localhost:1337/api/v1/get-file',
         method: 'GET',
@@ -205,11 +205,11 @@ export default {
         link.click();
       });
     },
-    addTest() {
-      this.testForm.pages.push({url: ''})
+    addTest: function() {
+      this.testForm.urls.push({url: ''})
     },
-    removeTest(index) {
-      this.testForm.pages.splice(index, 1)
+    removeTest: function(index) {
+      this.testForm.urls.splice(index, 1)
     }
   }
 }
