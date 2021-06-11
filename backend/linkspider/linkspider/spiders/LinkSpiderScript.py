@@ -41,5 +41,5 @@ class HrefSpider(CrawlSpider):
         for url in response.xpath('//a/@href').extract():
             newurl = urljoin(response.url, url)
             if self.allowed_domains[0] in newurl and "https" in newurl:
-                self.valid_links.add(newurl);
+                self.valid_links.add(newurl)
                 scrapy.http.Request(newurl)
