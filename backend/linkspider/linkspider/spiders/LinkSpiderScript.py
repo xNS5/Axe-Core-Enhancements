@@ -11,6 +11,7 @@ class serialize(JSONEncoder):
     def default(self, obj):
         return list(obj)
 
+
 class HrefSpider(CrawlSpider):
     name = 'Links'
     allowed_domains = []
@@ -26,7 +27,6 @@ class HrefSpider(CrawlSpider):
         else:
             self.allowed_domains = [domain]
         dispatcher.connect(self.close, signals.spider_closed)
-
     rules = (
         Rule(LinkExtractor(allow=allowed_domains), callback='parse', follow=True),
     )
@@ -35,9 +35,11 @@ class HrefSpider(CrawlSpider):
         json_str = serialize().encode(self.valid_links)
         print(json_str)
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
+
         # for allowed_domain in self.allowed_domains:
         for url in response.xpath('//a/@href').extract():
-                newurl = urljoin(response.url, url)
-                if self.allowed_domains[0] in newurl and "https" in newurl:
-                    scrapy.http.Request(newurl)
+            newurl = urljoin(response.url, url)
+            if self.allowed_domains[0] in newurl and "https" in newurl:
+                self.valid_links.add(newurl);
+                scrapy.http.Request(newurl)
