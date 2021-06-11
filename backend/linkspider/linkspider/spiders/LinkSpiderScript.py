@@ -36,8 +36,6 @@ class HrefSpider(CrawlSpider):
         print(json_str)
 
     def parse(self, response, **kwargs):
-
-        # for allowed_domain in self.allowed_domains:
         for url in response.xpath('//a/@href').extract():
             newurl = urljoin(response.url, url)
             if self.allowed_domains[0] in newurl and "https" in newurl:
