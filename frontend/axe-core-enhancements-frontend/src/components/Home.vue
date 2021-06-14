@@ -1,6 +1,21 @@
+<!-- TODO: 
+  Add css for errors
+  Put Run button bellow the rest of the form, centered on the page
+  Put errors bellow the run button 
+  Make the layout a grid box 
+-->
+
 <template>
   <div id="home" role="main">
     <h1>WWU Axe-Core Enhancements</h1>
+    <div id="errors" v-if="error.length">
+      <h2>Please correct the following errors</h2>
+      <ul>
+        <li v-for="e in error" v-bind:key="e.id">
+          {{e}}
+        </li>
+      </ul>
+    </div>
     <div id="mainContainer" class="row">
       <div id="testSelection" class="column">
         <div class="selectEngine">
@@ -57,14 +72,19 @@
         <div class="inputPages">
           <h2>Test Page</h2>
           <div class="runButton">
+<<<<<<< HEAD
             <button v-on:click="runAxe"> Run Axe </button>
           </div>
           <div class="runButton">
             <button v-on:click="testFile"> Test File Download </button>
+=======
+          <button v-on:click="runAxe"> Run </button>
+>>>>>>> afd0fb11b0dc412c726d544430c7bb01771ced90
           </div>
           <div v-for="(page, index) in testForm.urls" v-bind:key="index" class="row">
             <label for="URL@{{index}}">
               <div class="addButton">
+<<<<<<< HEAD
 <!--                @TODO find a way to have additional url entries stacked + increase size of text box-->
                 <input class="row" v-model="page.url" type="text" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
 
@@ -74,91 +94,27 @@
               <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
                 <span class="icon"></span>
               </button>
+=======
+<!--              @TODO find a way to have additional url entries stacked + increase size of text box-->
+                <input v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
+                <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest">
+                  <span class="icon"></span>
+                </button>
+                <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
+                  <span class="icon"></span>
+                </button>
+>>>>>>> afd0fb11b0dc412c726d544430c7bb01771ced90
               </div>
             </label>
-            </div>
-
-            </div>
           </div>
         </div>
+<<<<<<< HEAD
+=======
+      </div>
+    </div>
+  </div>
+>>>>>>> afd0fb11b0dc412c726d544430c7bb01771ced90
 </template>
-
-<style>
-h1{
-  font-size: 40px;
-}
-h2{
-  font-size: 30px;
-}
-label{
-  font-size: 24px;
-  padding: 2px;
-}
-input[type=checkbox]{
-  -ms-transform: scale(1.5); /* IE */
-  -moz-transform: scale(1.5); /* FF */
-  -webkit-transform: scale(2); /* Safari and Chrome */
-  -o-transform: scale(2); /* Opera */
-  transform: scale(1.5);
-  padding: 12px;
-}
-
-input{
-  vertical-align: center;
-  position: relative;
-  top: -4px;
-}
-
-
-/*
-TODO: Make a button somewhere which credits both of these artists? The icons are free to use as long as we credit them.
-Trash Icon by <a href="https://freeicons.io/profile/3">freeicons</a> on <a href="https://freeicons.io">freeicons.io</a>
-Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> on <a href="https://freeicons.io">freeicons.io</a>*/
-.addTest span.icon{
-  background: url("../assets/icons/add.png") no-repeat center;
-  vertical-align: middle;
-  float: left;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: 0;
-  background-size: 100% 100%;
-}
-
-.removeTest span.icon{
-  background: url("../assets/icons/trash.png") no-repeat center;
-  vertical-align: middle;
-  float: left;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: 0;
-  background-size: 140% 140%;
-}
-
-select{
-  font-size: 20px;
-}
-
-.column {
-  float: left;
-  width: 50%;
-}
-
-.row:after {
-  display: table;
-}
-
-/*TODO: See how a border around the Test Engine, Browser selection, and criteria divs look.
-    Maybe do something along the same lines for the Test Page div*/
-/*.div .selectBrowser .selectEngine .selectTest{*/
-/*  border-style: solid;*/
-/*  border-color: #001c20;*/
-/*  border-width: 3px;*/
-/*}*/
-
-</style>
-
 
 <script>
 import axios from "axios";
@@ -167,7 +123,12 @@ export default {
   name: 'WWU ACE',
   data(){
     return{
+<<<<<<< HEAD
       testForm: {
+=======
+      error: [],
+      testForm: [{
+>>>>>>> afd0fb11b0dc412c726d544430c7bb01771ced90
         engine:null,
         browser:null,
         // @TODO change testing criteria to a list of strings instead
@@ -182,6 +143,7 @@ export default {
     }
   },
   methods: {
+<<<<<<< HEAD
     runAxe: function() {
       console.log(this.testForm);
       try{
@@ -204,6 +166,35 @@ export default {
         document.body.appendChild(link);
         link.click();
       });
+=======
+    runAxe() {
+      console.log("getAxe", this.testForm);
+      this.error = [];
+      if(!this.testForm[0].engine) {
+        this.error.push("Engine is required")
+      }
+      if(!this.testForm[0].browser) {
+        this.error.push("Browser is required")
+      }
+      var i;
+      for(i = 0; i < this.testForm[0].pages.length; i++){
+        if(this.testForm[0].pages[i].url == '') {
+          this.error.push("All urls are required")
+          break
+        }
+        try {
+          new URL(this.testForm[0].pages[i].url);
+        } catch(e) {
+          this.error.push(this.testForm[0].pages[i].url  + " is an invalid URL");
+        }
+      }
+      if(this.testForm[0].criteria[0] == false && this.testForm[0].criteria[1] == false) {
+        this.error.push("At least 1 WCAG level is required")
+      }
+      if(this.error.length == 0) {
+        this.$emit('loadAxe');
+      }
+>>>>>>> afd0fb11b0dc412c726d544430c7bb01771ced90
     },
     addTest() {
       this.testForm.pages.push({url: ''})
