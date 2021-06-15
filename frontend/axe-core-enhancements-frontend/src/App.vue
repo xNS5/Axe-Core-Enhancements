@@ -1,16 +1,46 @@
 <template>
   <div id="App">
-    <Home />
+    <Home v-show="run" v-on:loadAxe="startLoading()"/>
+    <Loading v-show="load" v-on:doneLoading="doneRunning()"/>
+    <Complete v-show="complete" v-on:resetAxe="reset()"/>
   </div>
 </template>
 
 <script>
 import Home from './components/Home'
+import Loading from './components/Loading'
+import Complete from './components/Complete'
 
 export default {
   name: 'App',
   components: {
     Home,
+    Loading,
+    Complete
+  },
+  data() {
+    return {
+      run: true,
+      load: false,
+      complete: false
+    }
+  },
+  methods: {
+    startLoading() {
+      this.run = false;
+      this.load = true;
+      this.complete = false;
+    },
+    doneRunning() {
+      this.run = false;
+      this.load = false;
+      this.complete = true;
+    }, 
+    reset() {
+      this.run = true;
+      this.load = false;
+      this.complete = false;
+    }
   }
 }
 </script>
@@ -24,4 +54,77 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+h1{
+  font-size: 40px;
+}
+h2{
+  font-size: 30px;
+}
+label{
+  font-size: 24px;
+  padding: 2px;
+}
+input[type=checkbox]{
+  -ms-transform: scale(1.5); /* IE */
+  -moz-transform: scale(1.5); /* FF */
+  -webkit-transform: scale(2); /* Safari and Chrome */
+  -o-transform: scale(2); /* Opera */
+  transform: scale(1.5);
+  padding: 12px;
+}
+
+input{
+  vertical-align: center;
+  position: relative;
+  top: -4px;
+}
+
+
+/*
+TODO: Make a button somewhere which credits both of these artists? The icons are free to use as long as we credit them.
+Trash Icon by <a href="https://freeicons.io/profile/3">freeicons</a> on <a href="https://freeicons.io">freeicons.io</a>
+Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> on <a href="https://freeicons.io">freeicons.io</a>*/
+.addTest span.icon{
+  background: url("assets/icons/add.png") no-repeat center;
+  vertical-align: middle;
+  float: left;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background-size: 100% 100%;
+}
+
+.removeTest span.icon{
+  background: url("assets/icons/trash.png") no-repeat center;
+  vertical-align: middle;
+  float: left;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background-size: 140% 140%;
+}
+
+select{
+  font-size: 20px;
+}
+
+.column {
+  float: left;
+  width: 50%;
+}
+
+.row:after {
+  display: table;
+}
+
+/*TODO: See how a border around the Test Engine, Browser selection, and criteria divs look.
+    Maybe do something along the same lines for the Test Page div*/
+/*.div .selectBrowser .selectEngine .selectTest{*/
+/*  border-style: solid;*/
+/*  border-color: #001c20;*/
+/*  border-width: 3px;*/
+/*}*/
+
 </style>
