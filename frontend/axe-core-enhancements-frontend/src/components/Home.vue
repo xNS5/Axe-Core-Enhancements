@@ -102,9 +102,6 @@ export default {
       testForm: {
         engine:null,
         browser:null,
-        // @TODO change testing criteria to a list of strings instead
-        // wcagLevels:[false,false],
-        // criteria:[false,false,false,false,false],
         wcagLevel: [],
         criteria: [],
         urls: [
@@ -154,7 +151,6 @@ export default {
       if(this.error.length === 0) {
         this.$emit('loadAxe');
       }
-
       try{
         axios.post("http://localhost:1337/api/v1/axe-runner", this.testForm)
             .then((result) => console.log(result));
