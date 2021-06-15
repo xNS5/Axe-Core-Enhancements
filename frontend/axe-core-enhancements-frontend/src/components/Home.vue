@@ -143,9 +143,9 @@ export default {
           break
         }
         try {
-          new URL(this.testForm[0].pages[i].url);
+          new URL(this.testForm.urls[i].url);
         } catch(e) {
-          this.error.push(this.testForm[0].pages[i].url  + " is an invalid URL");
+          this.error.push(this.testForm.urls[i].url  + " is an invalid URL");
         }
       }
       if(this.testForm.criteria[0] === false && this.testForm.criteria[1] === false) {
