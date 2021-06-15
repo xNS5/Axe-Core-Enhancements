@@ -72,48 +72,23 @@
         <div class="inputPages">
           <h2>Test Page</h2>
           <div class="runButton">
-<<<<<<< HEAD
             <button v-on:click="runAxe"> Run Axe </button>
-          </div>
-          <div class="runButton">
-            <button v-on:click="testFile"> Test File Download </button>
-=======
-          <button v-on:click="runAxe"> Run </button>
->>>>>>> afd0fb11b0dc412c726d544430c7bb01771ced90
           </div>
           <div v-for="(page, index) in testForm.urls" v-bind:key="index" class="row">
             <label for="URL@{{index}}">
-              <div class="addButton">
-<<<<<<< HEAD
 <!--                @TODO find a way to have additional url entries stacked + increase size of text box-->
-                <input class="row" v-model="page.url" type="text" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
-
+                <input class="row" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
                 <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest">
                   <span class="icon"></span>
                 </button>
               <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
                 <span class="icon"></span>
               </button>
-=======
-<!--              @TODO find a way to have additional url entries stacked + increase size of text box-->
-                <input v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
-                <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest">
-                  <span class="icon"></span>
-                </button>
-                <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
-                  <span class="icon"></span>
-                </button>
->>>>>>> afd0fb11b0dc412c726d544430c7bb01771ced90
-              </div>
             </label>
           </div>
         </div>
-<<<<<<< HEAD
-=======
       </div>
     </div>
-  </div>
->>>>>>> afd0fb11b0dc412c726d544430c7bb01771ced90
 </template>
 
 <script>
@@ -123,12 +98,8 @@ export default {
   name: 'WWU ACE',
   data(){
     return{
-<<<<<<< HEAD
-      testForm: {
-=======
       error: [],
-      testForm: [{
->>>>>>> afd0fb11b0dc412c726d544430c7bb01771ced90
+      testForm: {
         engine:null,
         browser:null,
         // @TODO change testing criteria to a list of strings instead
@@ -143,17 +114,7 @@ export default {
     }
   },
   methods: {
-<<<<<<< HEAD
-    runAxe: function() {
-      console.log(this.testForm);
-      try{
-        axios.post("http://localhost:1337/api/v1/axe-runner", this.testForm)
-            .then((result) => console.log(result));
-      }catch(e){
-        alert(e.toString());
-      }
-    },
-    testFile(){
+    testFile() {
       axios({
         url: 'http://localhost:1337/api/v1/get-file',
         method: 'GET',
@@ -166,19 +127,18 @@ export default {
         document.body.appendChild(link);
         link.click();
       });
-=======
-    runAxe() {
+    },
+    runAxe: function() {
       console.log("getAxe", this.testForm);
       this.error = [];
-      if(!this.testForm[0].engine) {
+      if(!this.testForm.engine) {
         this.error.push("Engine is required")
       }
-      if(!this.testForm[0].browser) {
+      if(!this.testForm.browser) {
         this.error.push("Browser is required")
       }
-      var i;
-      for(i = 0; i < this.testForm[0].pages.length; i++){
-        if(this.testForm[0].pages[i].url == '') {
+      for(let i = 0; i < this.testForm.urls.length; i++){
+        if(this.testForm.urls[i].url === '') {
           this.error.push("All urls are required")
           break
         }
@@ -188,19 +148,25 @@ export default {
           this.error.push(this.testForm[0].pages[i].url  + " is an invalid URL");
         }
       }
-      if(this.testForm[0].criteria[0] == false && this.testForm[0].criteria[1] == false) {
+      if(this.testForm.criteria[0] === false && this.testForm.criteria[1] === false) {
         this.error.push("At least 1 WCAG level is required")
       }
-      if(this.error.length == 0) {
+      if(this.error.length === 0) {
         this.$emit('loadAxe');
       }
->>>>>>> afd0fb11b0dc412c726d544430c7bb01771ced90
+
+      try{
+        axios.post("http://localhost:1337/api/v1/axe-runner", this.testForm)
+            .then((result) => console.log(result));
+      }catch(e){
+        alert(e.toString());
+      }
     },
     addTest() {
-      this.testForm.pages.push({url: ''})
+      this.testForm.urls.push({url: ''})
     },
     removeTest(index) {
-      this.testForm.pages.splice(index, 1)
+      this.testForm.urls.splice(index, 1)
     }
   }
 }
