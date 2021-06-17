@@ -6,6 +6,7 @@
 -->
 
 <template>
+
   <div id="home" role="main">
     <h1>WWU Axe-Core Enhancements</h1>
     <div id="errors" v-if="error.length">
