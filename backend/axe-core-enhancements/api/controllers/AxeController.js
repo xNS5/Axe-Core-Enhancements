@@ -61,11 +61,12 @@ module.exports = {
       description: "Successfully checked website(s)."
     },
     error: {
-      description: "Oops! Something went wrong."
+      statusCode: 400,
+      description: "Invalid Input."
     }
   },
 
-  runAxe: function (inputs) {
+  runAxe: function (inputs, req, res) {
     inputs = inputs.body;
     const name = inputs.browser;
     const wcagLevel = inputs.wcagLevel;
@@ -123,8 +124,9 @@ module.exports = {
           console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
         }
       }
-      console.log(ace_result);
-      return ace_result;
+      if(ace_result.length === 0){
+        return res.status(500).json({error: "There was a problem with Axe"});
+      }
     })();
   }
 };
