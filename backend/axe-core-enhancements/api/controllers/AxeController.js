@@ -66,7 +66,7 @@ module.exports = {
     }
   },
 
-  runAxe: function (inputs, req, res) {
+  runAxe: async function (inputs, req, res) {
     inputs = inputs.body;
     const name = inputs.browser;
     const wcagLevel = inputs.wcagLevel;
@@ -75,6 +75,7 @@ module.exports = {
     const tags = [];
     let tag1, tag2;
     let wcag_regex = new RegExp('^[a]{1,3}$')
+    console.log(inputs)
 
 
     if (wcagLevel.length === 0 || wcagLevel.length === 2) {
@@ -95,39 +96,37 @@ module.exports = {
         tags.push(criteria[i]);
       }
     }
-
-    (async () => {
-      const results = (await Promise.allSettled(
-        [...Array(url_list.length)].map(async (_, i) => {
-          return new Promise(((resolve, reject) => {
-            console.log("Called Run");
-            const driver = new WebDriver.Builder().forBrowser(`${name}`).build();
-            let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
-            driver.get(url_list[i].url).then(() => {
-              builder.analyze((err, results) => {
-                driver.quit();
-                if (err) {
-                  console.log(err);
-                  reject(err);
-                } else {
-                  resolve(results);
-                }
-              });
-            })
-          }));
-        }))).filter(e => e.status === "fulfilled").map(e => e.value);
-      const ace_result = [];
-      for (let i = 0; i < results.length; i++) {
-        try {
-          ace_result.push(new AceResult(results[i].testEngine.name, results[i]));
-        } catch (err) {
-          console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
-        }
+    const results = (await Promise.allSettled(
+      [...Array(url_list.length)].map(async (_, i) => {
+        return new Promise(((resolve, reject) => {
+          const driver = new WebDriver.Builder().forBrowser(`${name}`).build();
+          let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
+          driver.get(url_list[i].url).then(() => {
+            builder.analyze((err, results) => {
+              driver.quit();
+              if (err) {
+                console.log(err);
+                reject(err);
+              } else {
+                resolve(results);
+              }
+            });
+          })
+        }));
+      }))).filter(e => e.status === "fulfilled").map(e => e.value);
+    const ace_result = [];
+    for (let i = 0; i < results.length; i++) {
+      try {
+        ace_result.push(new AceResult(results[i].testEngine.name, results[i]));
+      } catch (err) {
+        console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
       }
-      if(ace_result.length === 0){
-        return res.status(500).json({error: "There was a problem with Axe"});
-      }
-    })();
+    }
+    if(ace_result.length === 0){
+      req.status(500).json({error: "There was a problem with Axe"});
+    } else {
+      req.send(ace_result);
+    }
   }
 };
 
