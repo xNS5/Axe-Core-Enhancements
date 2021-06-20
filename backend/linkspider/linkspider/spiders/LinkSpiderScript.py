@@ -1,9 +1,11 @@
+import logging
 import sys
 import scrapy
 from scrapy import signals
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.crawler import CrawlerProcess
+from scrapy.http.response.text import TextResponse
 from urllib.parse import urljoin, urlparse
 from pydispatch import dispatcher
 from json import JSONEncoder
@@ -14,13 +16,20 @@ class serialize(JSONEncoder):
         return list(obj)
 
 
+# Add to this function if there are any links that Axe can't handle.
+def check_url(url):
+    if url.endswith('.pdf'):
+        return True
+    return False
+
+
 class HrefSpider(CrawlSpider):
     name = 'Links'
     allowed_domains = []
     valid_links = set()
     url = None
 
-    def __init__(self,url=None,**kwargs):
+    def __init__(self, url=None, **kwargs):
         super(HrefSpider, self).__init__(**kwargs)
         if url:
             self.url = url
@@ -47,13 +56,18 @@ class HrefSpider(CrawlSpider):
         print(json_str)
 
     def parse(self, response, **kwargs):
-        for url in response.xpath('//@href').extract():
-            newurl = urljoin(response.url, url)
-            if self.allowed_domains[0] in newurl and "https" in newurl:
-                self.valid_links.add(newurl)
-                yield scrapy.Request(newurl, callback=self.parse)
+        if isinstance(response, TextResponse):
+            for url in response.xpath('//@href').extract():
+                newurl = urljoin(response.url, url)
+                if self.allowed_domains[0] in newurl and ('https' or 'http') in newurl:
+                    if not check_url(newurl):
+                        self.valid_links.add(newurl)
+                        yield scrapy.Request(newurl, callback=self.parse)
+                    else:
+                        return
 
 
+logging.getLogger('scrapy').propagate = False
 process = CrawlerProcess()
 process.crawl(HrefSpider, url=sys.argv[1])
 process.start()
