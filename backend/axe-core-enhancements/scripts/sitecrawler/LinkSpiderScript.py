@@ -16,18 +16,18 @@ class serialize(JSONEncoder):
         return list(obj)
 
 
-# Add to this function if there are any links that Axe can't handle.
-def check_url(url):
-    if 'pdf' in url:
-        return True
-    return False
-
-
 class HrefSpider(CrawlSpider):
     name = 'Links'
     allowed_domains = []
     valid_links = set()
     url = None
+
+    # Add to this function if there are any links that Axe can't handle.
+    @staticmethod
+    def check_url(url):
+        if 'pdf' in url:
+            return True
+        return False
 
     def __init__(self, url=None, **kwargs):
         super(HrefSpider, self).__init__(**kwargs)
@@ -60,14 +60,15 @@ class HrefSpider(CrawlSpider):
             for url in response.xpath('//@href').extract():
                 newurl = urljoin(response.url, url)
                 if self.allowed_domains[0] in newurl and ('https' or 'http') in newurl:
-                    if not check_url(newurl):
+                    if not self.check_url(newurl):
                         self.valid_links.add(newurl)
                         yield scrapy.Request(newurl, callback=self.parse)
                     else:
                         return
 
 
-logging.getLogger('scrapy').propagate = False
+# logging.getLogger('scrapy').propagate = False
 process = CrawlerProcess()
 process.crawl(HrefSpider, url=sys.argv[1])
 process.start()
+

@@ -10,6 +10,7 @@
     "@sailshq/connect-redis": "^3.2.1",
     "@sailshq/lodash": "^3.10.3",
     "@sailshq/socket.io-redis": "^5.2.0",
+    "app-root-path": "^3.0.0",
     "assert": "^2.0.0",
     "async": "^3.2.0",
     "async-limiter": "^2.0.0",
