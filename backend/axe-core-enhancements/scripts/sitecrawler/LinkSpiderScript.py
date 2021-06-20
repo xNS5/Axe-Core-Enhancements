@@ -45,7 +45,7 @@ class HrefSpider(CrawlSpider):
     )
 
     custom_settings = {
-        'DEPTH_LIMIT': 100,
+        'DEPTH_LIMIT': 20,
     }
 
     def start_requests(self):
