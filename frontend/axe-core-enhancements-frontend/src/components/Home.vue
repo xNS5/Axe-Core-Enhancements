@@ -153,7 +153,7 @@ export default {
         this.$emit('loadAxe');
       }
       try{
-        axios.post("http://localhost:1337/api/v1/axe-runner", this.testForm)
+        axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
             .then((result) => console.log(result));
       }catch(e){
         alert(e.toString());
