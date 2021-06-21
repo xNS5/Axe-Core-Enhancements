@@ -4,6 +4,7 @@
     <Loading v-show="load" v-on:doneLoading="doneRunning()"/>
     <Complete v-show="complete" v-on:resetAxe="reset()"/>
   </div>
+  <router-view/>
 </template>
 
 <script>
