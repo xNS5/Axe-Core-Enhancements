@@ -29,6 +29,15 @@ const AxeBuilder = require('@axe-core/webdriverjs');
 const WebDriver = require('selenium-webdriver');
 const {AceResult} = require('../models/aceResult.js');
 
+
+function openInNewTab(href) {
+  Object.assign(document.createElement('a'), {
+    target: '_blank',
+    href: href,
+  }).click();
+}
+
+
 module.exports = {
   friendlyName: 'axe-runner',
   description: 'Runs the Deque labs Accessibility testing engine',
@@ -96,6 +105,8 @@ module.exports = {
         tags.push(criteria[i]);
       }
     }
+
+
     const results = (await Promise.allSettled(
       [...Array(url_list.length)].map(async (_, i) => {
         const driver = new WebDriver.Builder().forBrowser(`${name}`).build();
@@ -111,6 +122,7 @@ module.exports = {
                 resolve(results);
               }
             });
+
           })
         }));
       }))).filter(e => e.status === "fulfilled").map(e => e.value);
