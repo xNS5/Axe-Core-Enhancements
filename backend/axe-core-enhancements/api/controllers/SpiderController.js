@@ -40,11 +40,7 @@ module.exports = {
       });
     } catch {
       console.log('error running python code');
-      // reject();
     }
-    // (async() => {
-    //
-    // })();
   }
 };
 
