@@ -29,6 +29,15 @@ const AxeBuilder = require('@axe-core/webdriverjs');
 const WebDriver = require('selenium-webdriver');
 const {AceResult} = require('../models/aceResult.js');
 
+
+function openInNewTab(href) {
+  Object.assign(document.createElement('a'), {
+    target: '_blank',
+    href: href,
+  }).click();
+}
+
+
 module.exports = {
   friendlyName: 'axe-runner',
   description: 'Runs the Deque labs Accessibility testing engine',
@@ -96,11 +105,13 @@ module.exports = {
         tags.push(criteria[i]);
       }
     }
+
+
     const results = (await Promise.allSettled(
       [...Array(url_list.length)].map(async (_, i) => {
-        return new Promise(((resolve, reject) => {
-          const driver = new WebDriver.Builder().forBrowser(`${name}`).build();
-          let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
+        const driver = new WebDriver.Builder().forBrowser(`${name}`).build();
+        let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
+        return await new Promise(((resolve, reject) => {
           driver.get(url_list[i].url).then(() => {
             builder.analyze((err, results) => {
               driver.quit();
@@ -111,6 +122,7 @@ module.exports = {
                 resolve(results);
               }
             });
+
           })
         }));
       }))).filter(e => e.status === "fulfilled").map(e => e.value);
@@ -125,7 +137,7 @@ module.exports = {
     if(ace_result.length === 0){
       req.status(500).json({error: "There was a problem with Axe"});
     } else {
-      req.send(ace_result);
+      console.log(ace_result);
     }
   }
 };
