@@ -4,7 +4,6 @@
     <Loading v-show="load" v-on:doneLoading="doneRunning()"/>
     <Complete v-show="complete" v-on:resetAxe="reset()"/>
   </div>
-  <router-view/>
 </template>
 
 <script>
@@ -13,6 +12,7 @@ import Loading from './components/Loading'
 import Complete from './components/Complete'
 
 export default {
+
   name: 'App',
   components: {
     Home,

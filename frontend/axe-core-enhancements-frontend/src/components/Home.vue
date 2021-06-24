@@ -117,19 +117,28 @@ export default {
     }
   },
   methods: {
-    testFile() {
-      axios({
-        url: 'http://localhost:1337/api/v1/get-file',
-        method: 'GET',
-        responseType: 'blob',
-      }).then((response) => {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'file.txt'); //or any other extension
-        document.body.appendChild(link);
-        link.click();
-      });
+    // testFile() {
+    //   axios({
+    //     url: 'http://localhost:1337/api/v1/get-file',
+    //     method: 'GET',
+    //     responseType: 'blob',
+    //   }).then((response) => {
+    //     const url = window.URL.createObjectURL(new Blob([response.data]));
+    //     const link = document.createElement('a');
+    //     link.href = url;
+    //     link.setAttribute('download', 'file.txt'); //or any other extension
+    //     document.body.appendChild(link);
+    //     link.click();
+    //   });
+    // },
+    createFile(name, data){
+      const d = new Date();
+      const url = window.URL.createObjectURL(new Blob([data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${name}-${d.getDate()}${((d.getHours() + 11) % 12 + 1)}`+".csv"); //or any other extension
+      document.body.appendChild(link);
+      link.click();
     },
     runAxe: function() {
       console.log("getAxe", this.testForm);
@@ -156,12 +165,26 @@ export default {
       }
       if(this.error.length === 0) {
         this.$emit('loadAxe');
-      }
-      try{
-        axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
-            .then((result) => console.log(result));
-      }catch(e){
-        alert(e.toString());
+        try{
+          if(spider){
+            axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0].url).then((result) => {
+              this.testForm.urls = result;
+              axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
+                  .then((result) => {
+                    this.createFile("Axe", result.data);
+                    // console.log(result.data);
+                  });
+            })
+          } else {
+            axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
+                .then((result) => {
+                  this.createFile("Axe", result.data);
+                  // console.log(result.data);
+                });
+          }
+        }catch(e){
+          alert(e.toString());
+        }
       }
     },
     addTest() {

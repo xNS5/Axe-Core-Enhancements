@@ -10,7 +10,7 @@
 * Author: Michael Kennedy
 * Description: Driver function for the Axe-Core accessibility testing engine.
 * Parameters: name, tags, url_list.
-* Name: name of the browser to be used (either firefox, or chome)
+* Name: name of the browser to be used (either firefox, or chrome)
 * Tags: wcag success criteria
 * Url_list: list of 1...* URLs to parse
 *
@@ -28,15 +28,7 @@
 const AxeBuilder = require('@axe-core/webdriverjs');
 const WebDriver = require('selenium-webdriver');
 const {AceResult} = require('../models/aceResult.js');
-
-
-function openInNewTab(href) {
-  Object.assign(document.createElement('a'), {
-    target: '_blank',
-    href: href,
-  }).click();
-}
-
+const CreateCSV = require('../../scripts/files/create-csv.js');
 
 module.exports = {
   friendlyName: 'axe-runner',
@@ -105,26 +97,27 @@ module.exports = {
         tags.push(criteria[i]);
       }
     }
-
-
     const results = (await Promise.allSettled(
       [...Array(url_list.length)].map(async (_, i) => {
-        const driver = new WebDriver.Builder().forBrowser(`${name}`).build();
-        let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
-        return await new Promise(((resolve, reject) => {
-          driver.get(url_list[i].url).then(() => {
-            builder.analyze((err, results) => {
-              driver.quit();
-              if (err) {
-                console.log(err);
-                reject(err);
-              } else {
-                resolve(results);
-              }
-            });
-
-          })
-        }));
+        try{
+          const driver = new WebDriver.Builder().forBrowser(`${name}`).build();
+          let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
+          return await new Promise(((resolve, reject) => {
+            driver.get(url_list[i].url).then(() => {
+              builder.analyze((err, results) => {
+                driver.quit();
+                if (err) {
+                  console.log(err);
+                  reject(err);
+                } else {
+                  resolve(results);
+                }
+              });
+            })
+          }));
+        } catch(e) {
+          req.send(e);
+        }
       }))).filter(e => e.status === "fulfilled").map(e => e.value);
     const ace_result = [];
     for (let i = 0; i < results.length; i++) {
@@ -137,7 +130,8 @@ module.exports = {
     if(ace_result.length === 0){
       req.status(500).json({error: "There was a problem with Axe"});
     } else {
-      console.log(ace_result);
+
+      req.send(new CreateCSV(ace_result));
     }
   }
 };
