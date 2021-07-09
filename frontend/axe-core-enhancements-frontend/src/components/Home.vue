@@ -55,8 +55,8 @@
             <label for="wcagA" class="container"> A </label>
             <input type="checkbox" id="wcagAA" name="wcagAA" value="aa" v-model="testForm.criteria">
             <label for="wcagAA"> AA </label>
-<!--            <input type="checkbox" id="wcagAAA" name="wcagAAA" value="aaa" v-model="testForm[0].criteria[2]">-->
-<!--            <label for="wcagAAA"> AAA </label>-->
+            <input type="checkbox" id="wcagAAA" name="wcagAAA" value="aaa" v-model="testForm[0].criteria[2]">
+            <label for="wcagAAA"> AAA </label>
 <!--            TODO: implement features that search for WCAG SC for AAA                                         -->
           </div>
           <div class="selectTest.child.other" id="selectTest.child.other" >
