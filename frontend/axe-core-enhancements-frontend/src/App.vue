@@ -55,30 +55,20 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+
 h1{
   font-size: 40px;
 }
+
 h2{
   font-size: 30px;
 }
+
 label{
   font-size: 24px;
   padding: 2px;
 }
-input[type=checkbox]{
-  -ms-transform: scale(1.5); /* IE */
-  -moz-transform: scale(1.5); /* FF */
-  -webkit-transform: scale(2); /* Safari and Chrome */
-  -o-transform: scale(2); /* Opera */
-  transform: scale(1.5);
-  padding: 12px;
-}
 
-input{
-  vertical-align: center;
-  position: relative;
-  top: -4px;
-}
 
 
 /*
@@ -96,6 +86,27 @@ Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> o
   background-size: 100% 100%;
 }
 
+input[type=checkbox]{
+  -ms-transform: scale(1.5); /* IE */
+  -moz-transform: scale(1.5); /* FF */
+  -webkit-transform: scale(2); /* Safari and Chrome */
+  -o-transform: scale(2); /* Opera */
+  transform: scale(1.5);
+  padding: 12px;
+}
+
+input{
+  vertical-align: center;
+  position: relative;
+  top: -4px;
+}
+
+.runButton button{
+  padding: 5px 10px;
+  font-size: 24px;
+  position: relative;
+}
+
 .removeTest span.icon{
   background: url("assets/icons/trash.png") no-repeat center;
   vertical-align: middle;
@@ -111,13 +122,15 @@ select{
   font-size: 20px;
 }
 
-.column {
-  float: left;
-  width: 50%;
+.column{
+  display: inline-table;
+  padding-right: 5%;
+  padding-left: 5%;
+  padding-top: 2%;
 }
 
-.row:after {
-  display: table;
+.row:after{
+  text-align: center;
 }
 
 /*TODO: See how a border around the Test Engine, Browser selection, and criteria divs look.

@@ -67,26 +67,36 @@
             <label for="section508"> Section 508 </label>
           </div>
         </div>
-      </div>
-      <div id="selectURL" class="column">
+      <div id="select.url" class="column">
         <div class="inputPages">
           <h2>Test Page</h2>
-          <div class="runButton">
-            <button v-on:click="runAxe"> Run Axe </button>
+          <div>
+            <div class="runButton">
+              <button v-on:click="runAxe"> Run Axe </button>
+            </div>
+            <div class="spider-box">
+              <input type="checkbox" id="spider-box" name="spider-checkbox" value="spider" v-model="this.spider" v-on:click="hideAddRemoveButtons">
+              <label for="spider-box">Run Spider</label>
+            </div>
           </div>
+
+
           <div v-for="(page, index) in testForm.urls" v-bind:key="index" class="row">
             <label for="URL@{{index}}">
-<!--                @TODO find a way to have additional url entries stacked + increase size of text box-->
-                <input class="row" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
+              <!--                @TODO find a way to have additional url entries stacked + increase size of text box-->
+              <input class="row" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
+              <div id="increase-decrease">
                 <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest">
                   <span class="icon"></span>
                 </button>
-              <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
-                <span class="icon"></span>
-              </button>
+                <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
+                  <span class="icon"></span>
+                </button>
+              </div>
             </label>
           </div>
         </div>
+      </div>
       </div>
     </div>
 </template>
@@ -105,6 +115,7 @@ export default {
   data(){
     return{
       error: [],
+      spider:false,
       testForm: {
         engine:null,
         browser:null,
@@ -140,7 +151,7 @@ export default {
       document.body.appendChild(link);
       link.click();
     },
-    runAxe: function() {
+    runAxe() {
       console.log("getAxe", this.testForm);
       this.error = [];
       if(!this.testForm.engine) {
@@ -166,7 +177,7 @@ export default {
       if(this.error.length === 0) {
         this.$emit('loadAxe');
         try{
-          if(spider){
+          if(this.spider){
             axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0].url).then((result) => {
               this.testForm.urls = result;
               axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
@@ -180,7 +191,7 @@ export default {
                 .then((result) => {
                   this.createFile("Axe", result.data);
                   // console.log(result.data);
-                });
+                })
           }
         }catch(e){
           alert(e.toString());
@@ -192,6 +203,12 @@ export default {
     },
     removeTest(index) {
       this.testForm.urls.splice(index, 1)
+    },
+    hideAddRemoveButtons(){
+      document.getElementById("increase-decrease").style.visibility = (this.spider === true) ? "visible" : "hidden";
+     for(let i = this.testForm.urls.length-1; i > 0; i--){
+       this.removeTest(i);
+     }
     }
   }
 }
