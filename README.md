@@ -10,17 +10,19 @@ As a stretch goal, the program will have the ability to test web pages with diff
 
 
 # Features
-* Spider the current website. (FE-01, 02, 03) 
-* Export results to a GUI. (FE-06, 07)
-* User friendly and accessible interface. (FE-07)
-* Option to select WCAG levels. (FE-04)
-* Option to manually enter results. (FE-07)
-* Includes WCAG violations that require human testing (FE-05, 06)
-* Option to export to a PDF or CSV (FE-08)
+* ~~Spider the current website. (FE-01, 02, 03)~~ COMPLETE
+* ~~Export results to a GUI. (FE-06, 07)~~ BACKLOGGED
+* ~~User friendly and accessible interface. (FE-07)~~ COMPLETE
+* ~~Option to select WCAG levels. (FE-04)~~ COMPLETE
+* ~~Option to manually enter results. (FE-07)~~ BACKLOGGED
+* ~~Includes WCAG violations that require human testing (FE-05, 06)~~ COMPLETE
+* ~~Option to export to a PDF or CSV (FE-08)~~ Requirement changed to CSV ONLY -> COMPLETE
 * Hosted in a cloud platform (FE-09, 11)
 
 # Future Features
 * Ensure the program is accessibility engine agnostic (FE-10)
+* Design a spreadsheet interface for the results to be exported to
+* Integrate more testing engines
 
 # Usage
 
