@@ -9,10 +9,10 @@
 * Axe Runner
 * Author: Michael Kennedy
 * Description: Driver function for the Axe-Core accessibility testing engine.
-* Parameters: name, tags, url_list.
+* Parameters: name, tags, urlList.
 * Name: name of the browser to be used (either firefox, or chrome)
 * Tags: wcag success criteria
-* Url_list: list of 1...* URLs to parse
+* urlList: list of 1...* URLs to parse
 *
 * This application utilizes axe-core/puppeteer to run axe-core on the listed URLs.
 * Upon testing, the results from headless and non-headless puppeteer were the same, whereas headless selenium vs non-headless
@@ -27,8 +27,9 @@
 // const puppeteer = require('puppeteer');
 const AxeBuilder = require('@axe-core/webdriverjs');
 const WebDriver = require('selenium-webdriver');
-const {AceResult} = require('../models/aceResult.js');
-const CreateCSV = require('../../scripts/files/create-csv.js');
+const { AceResult } = require('../models/aceResult.js');
+const { FirefoxProfile } = require('firefox-profile');
+const CreateCSV = require('../../lib/files/create-csv.js');
 
 module.exports = {
   friendlyName: 'axe-runner',
@@ -41,6 +42,10 @@ module.exports = {
     },
     browser: {
       type: 'string',
+      required: true
+    },
+    a3: {
+      type: 'boolean',
       required: true
     },
     wcagLevel: {
@@ -59,26 +64,28 @@ module.exports = {
   exits: {
     success: {
       statusCode: 201,
-      description: "Successfully checked website(s)."
+      description: 'Successfully checked website(s).'
     },
     error: {
       statusCode: 400,
-      description: "Invalid Input."
+      description: 'Invalid Input.'
     }
   },
 
-  runAxe: async function (inputs, req, res) {
+  runAxe: async function (inputs, req) {
     inputs = inputs.body;
     const name = inputs.browser;
     const wcagLevel = inputs.wcagLevel;
     const criteria = inputs.criteria;
-    const url_list = inputs.urls;
+    const urlList = inputs.urls;
+    const is3A = inputs.a3;
     const tags = [];
     let tag1, tag2;
     let wcag_regex = new RegExp('^[a]{1,3}$')
     console.log(inputs)
 
 
+    //@TODO Remove tag1 and tag2
     if (wcagLevel.length === 0 || wcagLevel.length === 2) {
       tag1 = wcagLevel[0];
       tag2 = wcagLevel[1];
@@ -88,6 +95,7 @@ module.exports = {
 
     for (let i = 0; i < criteria.length; i++) {
       if (wcag_regex.test(criteria[i])){
+        //@TODO use .map() to create 2a or 2aa depending on what it is
         if (tag1) {
           tags.push(tag1+criteria[i]);
         } if(tag2){
@@ -97,13 +105,22 @@ module.exports = {
         tags.push(criteria[i]);
       }
     }
+
+    // const tags = wcagLevel.flatMap(wcag => criteria.map(crit => {
+    //   if(wcag_regex.test(crit)){
+    //     return wcag + crit;
+    //   }
+    // }))
+
+    console.log(tags);
+
     const results = (await Promise.allSettled(
-      [...Array(url_list.length)].map(async (_, i) => {
+      [...Array(urlList.length)].map(async (_, i) => {
         try{
           const driver = new WebDriver.Builder().forBrowser(`${name}`).build();
           let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
           return await new Promise(((resolve, reject) => {
-            driver.get(url_list[i].url).then(() => {
+            driver.get(urlList[i].url).then(() => {
               builder.analyze((err, results) => {
                 driver.quit();
                 if (err) {
@@ -130,7 +147,6 @@ module.exports = {
     if(ace_result.length === 0){
       req.status(500).json({error: "There was a problem with Axe"});
     } else {
-
       req.send(new CreateCSV(ace_result));
     }
   }
