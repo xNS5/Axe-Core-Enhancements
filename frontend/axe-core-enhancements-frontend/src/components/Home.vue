@@ -55,9 +55,8 @@
             <label for="wcagA" class="container"> A </label>
             <input type="checkbox" id="wcagAA" name="wcagAA" value="aa" v-model="testForm.criteria">
             <label for="wcagAA"> AA </label>
-            <input type="checkbox" id="wcagAAA" name="wcagAAA" value="aaa" v-model="testForm[0].criteria[2]">
+            <input type="checkbox" id="wcagAAA" name="wcagAAA" value="aaa" v-model="testForm.a3">
             <label for="wcagAAA"> AAA </label>
-<!--            TODO: implement features that search for WCAG SC for AAA                                         -->
           </div>
           <div class="selectTest.child.other" id="selectTest.child.other" >
             <h3>Other Criteria</h3>
@@ -68,9 +67,9 @@
           </div>
         </div>
       <div id="select.url" class="column">
-        <div class="inputPages">
+        <div>
           <h2>Test Page</h2>
-          <div>
+          <div class="testbuttons">
             <div class="runButton">
               <button v-on:click="runAxe"> Run Axe </button>
             </div>
@@ -79,22 +78,22 @@
               <label for="spider-box">Run Spider</label>
             </div>
           </div>
-
-
-          <div v-for="(page, index) in testForm.urls" v-bind:key="index" class="row">
-            <label for="URL@{{index}}">
-              <!--                @TODO find a way to have additional url entries stacked + increase size of text box-->
-              <input class="row" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
-              <div id="increase-decrease">
-                <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest">
-                  <span class="icon"></span>
-                </button>
-                <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
-                  <span class="icon"></span>
-                </button>
-              </div>
-            </label>
-          </div>
+        </div>
+        <div class="urlWrapper" v-for="(page, index) in testForm.urls" v-bind:key="index">
+          <label for="URL@{{index}}">
+            <!--@TODO find a way to have additional url entries stacked + increase size of text box-->
+            <input class="url" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
+            <div id="addTest" class="add">
+              <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest">
+                <span class="icon"></span>
+              </button>
+            </div>
+            <div id="removeTest" class="remove">
+              <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
+                <span class="icon"></span>
+              </button>
+            </div>
+          </label>
         </div>
       </div>
       </div>
@@ -119,6 +118,7 @@ export default {
       testForm: {
         engine:null,
         browser:null,
+        a3: false,
         wcagLevel: [],
         criteria: [],
         urls: [
@@ -143,11 +143,12 @@ export default {
     //   });
     // },
     createFile(name, data){
+      console.log("data", data);
       const d = new Date();
-      const url = window.URL.createObjectURL(new Blob([data]));
+      const url = window.URL.createObjectURL(new Blob([data.map(e => e.join(","))], {type: 'text/csv;charset=utf-8;'}));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `${name}-${d.getDate()}${((d.getHours() + 11) % 12 + 1)}`+".csv"); //or any other extension
+      link.setAttribute('download', `${name}-${d.getDate()}${((d.getUTCSeconds() + 11) % 12 + 1)}`+".csv"); //or any other extension
       document.body.appendChild(link);
       link.click();
     },
@@ -205,7 +206,7 @@ export default {
       this.testForm.urls.splice(index, 1)
     },
     hideAddRemoveButtons(){
-      document.getElementById("increase-decrease").style.visibility = (this.spider === true) ? "visible" : "hidden";
+      document.getElementById("addTest").style.visibility = (this.spider === true) ? "visible" : "hidden";
      for(let i = this.testForm.urls.length-1; i > 0; i--){
        this.removeTest(i);
      }
