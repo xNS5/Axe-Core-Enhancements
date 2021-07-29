@@ -69,23 +69,6 @@ label{
   padding: 2px;
 }
 
-
-
-/*
-TODO: Make a button somewhere which credits both of these artists? The icons are free to use as long as we credit them.
-Trash Icon by <a href="https://freeicons.io/profile/3">freeicons</a> on <a href="https://freeicons.io">freeicons.io</a>
-Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> on <a href="https://freeicons.io">freeicons.io</a>*/
-.addTest span.icon{
-  background: url("assets/icons/add.png") no-repeat center;
-  vertical-align: middle;
-  float: left;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: 0;
-  background-size: 100% 100%;
-}
-
 input[type=checkbox]{
   -ms-transform: scale(1.5); /* IE */
   -moz-transform: scale(1.5); /* FF */
@@ -101,21 +84,44 @@ input{
   top: -4px;
 }
 
-.runButton button{
-  padding: 5px 10px;
-  font-size: 24px;
-  position: relative;
+/*
+TODO: Make a button somewhere which credits both of these artists? The icons are free to use as long as we credit them.
+Trash Icon by <a href="https://freeicons.io/profile/3">freeicons</a> on <a href="https://freeicons.io">freeicons.io</a>
+Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> on <a href="https://freeicons.io">freeicons.io</a>*/
+.addTest span.icon{
+  background: url("assets/icons/add.png") no-repeat center;
+  float: left;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background-size: 100% 100%;
 }
 
 .removeTest span.icon{
   background: url("assets/icons/trash.png") no-repeat center;
-  vertical-align: middle;
   float: left;
   width: 20px;
   height: 20px;
   padding: 0;
   border: 0;
   background-size: 140% 140%;
+}
+
+.runButton button{
+  padding: 5px 10px;
+  font-size: 24px;
+}
+
+.spider-box{
+  padding-left: 10px;
+  padding-right: 20px;
+}
+
+
+/*For the Run Axe and Spider buttons/tickboxes*/
+.testbuttons div{
+  display: inline;
 }
 
 select{
@@ -129,12 +135,33 @@ select{
   padding-top: 2%;
 }
 
-.row:after{
-  text-align: center;
+urlWrapper{
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+  grid-auto-rows: 100px;
+  grid-template-areas:
+    "a a a a b b b b c c c"
+    "a a a a b b b b c c c";
+  align-items: start;
 }
 
-/*TODO: See how a border around the Test Engine, Browser selection, and criteria divs look.
-    Maybe do something along the same lines for the Test Page div*/
+.url div{
+  grid-area: a;
+}
+
+.add div{
+  grid-area: b;
+}
+
+.remove div{
+  grid-area: c;
+}
+
+
+/*
+    TODO: See how a border around the Test Engine, Browser selection, and criteria divs look. Maybe do something along the same lines for the Test Page div
+*/
 /*.div .selectBrowser .selectEngine .selectTest{*/
 /*  border-style: solid;*/
 /*  border-color: #001c20;*/
