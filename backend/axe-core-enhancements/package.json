@@ -7,6 +7,7 @@
   "dependencies": {
     "@axe-core/puppeteer": "^4.2.0",
     "@axe-core/webdriverjs": "^4.2.1",
+    "@babel/runtime": "^7.14.6",
     "@sailshq/connect-redis": "^3.2.1",
     "@sailshq/lodash": "^3.10.3",
     "@sailshq/socket.io-redis": "^5.2.0",
@@ -19,6 +20,7 @@
     "chromium": "^3.0.2",
     "diff": "^5.0.0",
     "eslint": "^7.27.0",
+    "firefox-profile": "^4.2.0",
     "geckodriver": "^2.0.0",
     "growl": "^1.10.5",
     "grunt": "^1.4.0",
@@ -35,10 +37,11 @@
     "socket.io": "^4.1.1",
     "trim": "^1.0.1",
     "underscore": "^1.13.1",
+    "wcag-reference-cjs": "^0.1.2",
     "xmlhttprequest-ssl": "^1.6.2"
   },
   "scripts": {
-    "start": "set NODE_ENV=production node app.js",
+    "start": "set NODE_ENV=production babel-node app.js",
     "test": "npm run lint && npm run custom-tests && echo 'Done.'",
     "lint": "node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives && echo '✔  Your .js dump/files look good.'",
     "custom-tests": "echo \"(No other custom tests yet.)\" && echo"
@@ -52,5 +55,8 @@
   "license": "",
   "engines": {
     "node": "^16.0"
+  },
+  "devDependencies": {
+    "babelify": "^10.0.0"
   }
 }
