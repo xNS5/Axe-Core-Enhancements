@@ -76,12 +76,15 @@ input[type=checkbox]{
   -o-transform: scale(2); /* Opera */
   transform: scale(1.5);
   padding: 12px;
-}
-
-input{
   vertical-align: center;
   position: relative;
   top: -4px;
+}
+
+input[type=url]{
+  font-size: 20px;
+  margin-top: 15px;
+  justify-content: flex-start;
 }
 
 /*
@@ -93,9 +96,10 @@ Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> o
   float: left;
   width: 20px;
   height: 20px;
-  padding: 0;
-  border: 0;
   background-size: 100% 100%;
+}
+.addTest,.removeTest{
+  margin: 5px;
 }
 
 .removeTest span.icon{
@@ -103,13 +107,14 @@ Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> o
   float: left;
   width: 20px;
   height: 20px;
-  padding: 0;
-  border: 0;
   background-size: 140% 140%;
 }
 
+.buttonContainer{
+  display: block;
+}
+
 .runButton button{
-  padding: 5px 10px;
   font-size: 24px;
 }
 
@@ -119,7 +124,7 @@ Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> o
 }
 
 
-/*For the Run Axe and Spider buttons/tickboxes*/
+/* For the Run Axe and Spider buttons/tickboxes */
 .testbuttons div{
   display: inline;
 }
@@ -135,29 +140,19 @@ select{
   padding-top: 2%;
 }
 
-urlWrapper{
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 10px;
-  grid-auto-rows: 100px;
-  grid-template-areas:
-    "a a a a b b b b c c c"
-    "a a a a b b b b c c c";
-  align-items: start;
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
 }
 
-.url div{
-  grid-area: a;
-}
+/*.add div{*/
+/*
+/*}*/
 
-.add div{
-  grid-area: b;
-}
-
-.remove div{
-  grid-area: c;
-}
-
+/*.remove div{*/
+/*
+/*}*/
 
 /*
     TODO: See how a border around the Test Engine, Browser selection, and criteria divs look. Maybe do something along the same lines for the Test Page div

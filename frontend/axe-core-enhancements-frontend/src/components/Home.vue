@@ -16,8 +16,8 @@
         </li>
       </ul>
     </div>
-    <div id="mainContainer" class="row">
-      <div id="testSelection" class="column">
+    <div class="row">
+      <div class="column">
         <div class="selectEngine">
           <h2>Testing Engine</h2>
           <!-- Engine choice drop down -->
@@ -27,7 +27,7 @@
             <!--<option value="crest">Crest</option> Crest has not yet been released. Alternate engines can be added-->
           </select>
         </div>
-        <div class="selectBrowser" id="select-browser">
+        <div class="selectBrowser">
           <h2>Browser</h2>
           <!-- Browser choice drop down -->
           <label for="browser">Select a Web Browser: </label>
@@ -40,61 +40,52 @@
         <div class="selectTest">
           <h2>Testing Criteria</h2>
           <!-- Check boxes for WCAG levels -->
-          <div class="selectTest.child.wcag" id="selectTest.child.wcag" >
-            <div class="selectTest.child.wcag.version" id="selectTest.child.wcag.version">
+            <span>
               <h3>WCAG Version</h3>
-<!--              TODO: Set up ability to add wcag2 and wcag21 to string output in model-->
-                <input type="checkbox" id="wcag2" name="wcag2" value="wcag2" v-model="testForm.wcagLevel">
-                <label for="wcag2" class="container"> WCAG 2.0 </label>
-                <input type="checkbox" id="wcag21" name="wcag2" value="wcag21" v-model="testForm.wcagLevel">
-                <label for="wcag21" class="container"> WCAG 2.1 </label>
-              </div>
-            </div>
-            <h3>WCAG Levels</h3>
-            <input type="checkbox" id="wcagA" name="wcagA" value="a" v-model="testForm.criteria">
-            <label for="wcagA" class="container"> A </label>
-            <input type="checkbox" id="wcagAA" name="wcagAA" value="aa" v-model="testForm.criteria">
-            <label for="wcagAA"> AA </label>
-            <input type="checkbox" id="wcagAAA" name="wcagAAA" value="aaa" v-model="testForm.a3">
-            <label for="wcagAAA"> AAA </label>
+              <input type="checkbox" id="wcag2" name="wcag2" value="wcag2" v-model="testForm.wcagLevel">
+              <label for="wcag2" class="container"> 2.0 </label>
+              <input type="checkbox" id="wcag21" name="wcag2" value="wcag21" v-model="testForm.wcagLevel">
+              <label for="wcag21" class="container"> 2.1 </label>
+            </span>
+          <h3>WCAG Levels</h3>
+            <span>
+              <input type="checkbox" id="wcagA" name="wcagA" value="a" v-model="testForm.criteria">
+              <label for="wcagA" class="container"> A </label>
+              <input type="checkbox" id="wcagAA" name="wcagAA" value="aa" v-model="testForm.criteria">
+              <label for="wcagAA"> AA </label>
+              <input type="checkbox" id="wcagAAA" name="wcagAAA" value="aaa" v-model="testForm.a3">
+              <label for="wcagAAA"> AAA </label>
+            </span>
           </div>
-          <div class="selectTest.child.other" id="selectTest.child.other" >
             <h3>Other Criteria</h3>
             <input type="checkbox" id="best-practices" name="best-practices" value="best-practices" v-model="testForm.criteria">
             <label for="best-practices"> Best Practices </label>
             <input type="checkbox" id="section508" name="section508" value="section508" v-model="testForm.criteria">
             <label for="section508"> Section 508 </label>
+        </div>
+      <div class="column">
+        <h2>Test Page</h2>
+        <div class="testbuttons">
+          <span class="runButton">
+            <button v-on:click="runAxe"> Run Axe </button>
+          </span>
+          <div class="spider-box">
+            <input type="checkbox" id="spider-box" name="spider-checkbox" value="spider" v-model="this.spider" v-on:click="hideAddRemoveButtons">
+            <label for="spider-box">Run Spider</label>
           </div>
         </div>
-      <div id="select.url" class="column">
-        <div>
-          <h2>Test Page</h2>
-          <div class="testbuttons">
-            <div class="runButton">
-              <button v-on:click="runAxe"> Run Axe </button>
-            </div>
-            <div class="spider-box">
-              <input type="checkbox" id="spider-box" name="spider-checkbox" value="spider" v-model="this.spider" v-on:click="hideAddRemoveButtons">
-              <label for="spider-box">Run Spider</label>
-            </div>
-          </div>
-        </div>
-        <div class="urlWrapper" v-for="(page, index) in testForm.urls" v-bind:key="index">
-          <label for="URL@{{index}}">
+        <span class="row" v-for="(page, index) in testForm.urls" v-bind:key="index">
+          <label class="column" for="URL@{{index}}">
             <!--@TODO find a way to have additional url entries stacked + increase size of text box-->
-            <input class="url" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
-            <div id="addTest" class="add">
-              <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest">
-                <span class="icon"></span>
+            <input class="url" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="https://www.example.com">
+            <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest">
+                  <span class="icon"></span>
+            </button>
+             <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
+                  <span class="icon"></span>
               </button>
-            </div>
-            <div id="removeTest" class="remove">
-              <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
-                <span class="icon"></span>
-              </button>
-            </div>
           </label>
-        </div>
+        </span>
       </div>
       </div>
     </div>
