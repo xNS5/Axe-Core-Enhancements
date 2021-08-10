@@ -63,11 +63,11 @@
             <input type="checkbox" id="section508" name="section508" value="section508" v-model="testForm.criteria">
             <label for="section508"> Section 508 </label>
         </div>
-      <div class="column">
+      <div class="column urlWrapper">
         <h2>Test Page</h2>
         <div class="testbuttons">
           <span class="runButton">
-            <button v-on:click="runAxe"> Run Axe </button>
+            <button v-on:click="runAxe"> Run Ace </button>
           </span>
           <div class="spider-box">
             <input type="checkbox" id="spider-box" name="spider-checkbox" value="spider" v-model="this.spider" v-on:click="hideAddRemoveButtons">
@@ -75,15 +75,10 @@
           </div>
         </div>
         <span class="row" v-for="(page, index) in testForm.urls" v-bind:key="index">
-          <label class="column" for="URL@{{index}}">
-            <!--@TODO find a way to have additional url entries stacked + increase size of text box-->
+          <label for="URL@{{index}}">
             <input class="url" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="https://www.example.com">
-            <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest">
-                  <span class="icon"></span>
-            </button>
-             <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
-                  <span class="icon"></span>
-              </button>
+            <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest"><span class="icon"></span></button>
+            <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0"><span class="icon"></span></button>
           </label>
         </span>
       </div>

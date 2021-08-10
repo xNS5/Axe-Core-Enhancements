@@ -81,10 +81,13 @@ input[type=checkbox]{
   top: -4px;
 }
 
-input[type=url]{
+.url{
+  align-items: center;
   font-size: 20px;
   margin-top: 15px;
-  justify-content: flex-start;
+  grid-column: 1/3;
+  grid-row: 1;
+  float: left;
 }
 
 /*
@@ -97,9 +100,7 @@ Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> o
   width: 20px;
   height: 20px;
   background-size: 100% 100%;
-}
-.addTest,.removeTest{
-  margin: 5px;
+  padding: 5px;
 }
 
 .removeTest span.icon{
@@ -108,10 +109,27 @@ Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> o
   width: 20px;
   height: 20px;
   background-size: 140% 140%;
+  padding: 5px;
 }
 
-.buttonContainer{
-  display: block;
+.addTest{
+  float: left;
+  margin: 5px;
+  border-radius: 5px;
+  vertical-align: center;
+  position: relative;
+  padding: 0;
+  top: 6px;
+}
+
+.removeTest{
+  float: right;
+  margin: 5px;
+  border-radius: 5px;
+  vertical-align: center;
+  position: relative;
+  padding: 0;
+  top: 6px;
 }
 
 .runButton button{
@@ -122,7 +140,6 @@ Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> o
   padding-left: 10px;
   padding-right: 20px;
 }
-
 
 /* For the Run Axe and Spider buttons/tickboxes */
 .testbuttons div{
