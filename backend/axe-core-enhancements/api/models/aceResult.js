@@ -19,43 +19,24 @@
 const { getLinkToCriterion } = require('wcag-reference-cjs');
 
 class AceResult{
-  url = "";
-  version;
-  violations;
-  incomplete;
-
-  // violation_nodes;
-  // incomplete_nodes;
 
   //the issue ID, the WCAG success criteria, impact, description of the violation, code snippet, code target, summary.
   constructor(engine, results/*, version*/) {
     if (engine === 'axe-core') {
-      this.url = results.url;
+      this._url = results.url;
       // this.version = version;
-      this.violations = this.parseTags(results.violations);
-      this.incomplete = this.parseTags(results.incomplete);
+      this._violations = this.parseTags(results.violations);
+      this._incomplete = this.parseTags(results.incomplete);
       // console.log(this.violations);
     }
   }
 
-  get url() {
-    return this.url;
-  }
-
-  get violations() {
-    return this.violations;
-  }
-
-  get incomplete() {
-    return this.incomplete;
-  }
-
   // get violation_nodes() {
-  //   return this.violation_nodes;
+  //   return this._violation_nodes;
   // }
   //
   // get incomplete_nodes() {
-  //   return this.incomplete_nodes;
+  //   return this._incomplete_nodes;
   // }
 
   parseTags(violations) {
