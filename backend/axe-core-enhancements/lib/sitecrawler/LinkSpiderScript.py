@@ -22,7 +22,7 @@ class HrefSpider(CrawlSpider):
     valid_links = set()
     url = None
 
-    # Add to this function if there are any links that Axe can't handle.
+    # Add to this function if there are any links that Axe can't handle (e.g. pdf)
     @staticmethod
     def check_url(url):
         if 'pdf' in url:
@@ -67,8 +67,7 @@ class HrefSpider(CrawlSpider):
                         return
 
 
-# logging.getLogger('scrapy').propagate = False
+logging.getLogger('scrapy').propagate = False
 process = CrawlerProcess()
 process.crawl(HrefSpider, url=sys.argv[1])
 process.start()
-
