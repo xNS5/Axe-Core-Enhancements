@@ -29,7 +29,6 @@ module.exports = {
 
 
   sendfile: async function (req, res) {
-    console.log(req, res);
     // let config = {
     //   fields : ['id','name', 'email'],
     //   data: ['1', 'Michael'],

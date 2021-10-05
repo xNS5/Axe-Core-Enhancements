@@ -9,10 +9,10 @@
 * Axe Runner
 * Author: Michael Kennedy
 * Description: Driver function for the Axe-Core accessibility testing engine.
-* Parameters: name, tags, url_list.
-* Name: name of the browser to be used (either firefox, or chome)
+* Parameters: name, tags, urlList.
+* Name: name of the browser to be used (either firefox, or chrome)
 * Tags: wcag success criteria
-* Url_list: list of 1...* URLs to parse
+* urlList: list of 1...* URLs to parse
 *
 * This application utilizes axe-core/puppeteer to run axe-core on the listed URLs.
 * Upon testing, the results from headless and non-headless puppeteer were the same, whereas headless selenium vs non-headless
@@ -23,12 +23,13 @@
 * */
 
 
-const {AxePuppeteer} = require('@axe-core/puppeteer');
-const puppeteer = require('puppeteer');
+// const {AxePuppeteer} = require('@axe-core/puppeteer');
+// const puppeteer = require('puppeteer');
 const AxeBuilder = require('@axe-core/webdriverjs');
 const WebDriver = require('selenium-webdriver');
-const chrome_driver = require('chromedriver');
-const {AceResult} = require('../models/aceResult.js');
+const { AceResult } = require('../models/aceResult.js');
+const { FirefoxProfile } = require('firefox-profile');
+const CreateCSV = require('../../lib/files/create-csv.js');
 
 module.exports = {
   friendlyName: 'axe-runner',
@@ -41,6 +42,10 @@ module.exports = {
     },
     browser: {
       type: 'string',
+      required: true
+    },
+    a3: {
+      type: 'boolean',
       required: true
     },
     wcagLevel: {
@@ -59,25 +64,28 @@ module.exports = {
   exits: {
     success: {
       statusCode: 201,
-      description: "Successfully checked website(s)."
+      description: 'Successfully checked website(s).'
     },
     error: {
-      description: "Oops! Something went wrong."
+      statusCode: 400,
+      description: 'Invalid Input.'
     }
   },
 
-  runAxe: async function (inputs) {
+  runAxe: async function (inputs, req) {
     inputs = inputs.body;
     const name = inputs.browser;
     const wcagLevel = inputs.wcagLevel;
     const criteria = inputs.criteria;
-    const url_list = inputs.urls;
+    const urlList = inputs.urls;
+    const is3A = inputs.a3;
     const tags = [];
-    let results = [];
-    let tag1 = '';
-    let tag2 = '';
+    let tag1, tag2;
     let wcag_regex = new RegExp('^[a]{1,3}$')
+    console.log(inputs)
 
+
+    //@TODO Remove tag1 and tag2
     if (wcagLevel.length === 0 || wcagLevel.length === 2) {
       tag1 = wcagLevel[0];
       tag2 = wcagLevel[1];
@@ -85,9 +93,9 @@ module.exports = {
       tag1 = wcagLevel[0];
     }
 
-
     for (let i = 0; i < criteria.length; i++) {
       if (wcag_regex.test(criteria[i])){
+        //@TODO use .map() to create 2a or 2aa depending on what it is
         if (tag1) {
           tags.push(tag1+criteria[i]);
         } if(tag2){
@@ -98,55 +106,36 @@ module.exports = {
       }
     }
 
+    // const tags = wcagLevel.flatMap(wcag => criteria.map(crit => {
+    //   if(wcag_regex.test(crit)){
+    //     return wcag + crit;
+    //   }
+    // }))
 
-    const browser = await puppeteer.launch({product: name, headless: true});
-    results = (await Promise.allSettled(
-      [...Array(url_list.length)].map(async (_, i) => {
-        let inner_results;
-        const page = await browser.newPage();
-        await page.setBypassCSP(true);
-        await page.goto(url_list[i].url, {
-          waitUntil: ['load', 'domcontentloaded'],
-        });
+    console.log(tags);
 
-        /*
-        * Deleting iframes with sandbox attributes. In some cases, such as when running Axe-Core/puppeteer
-        * on https://haikyuu.org/manga/haikyuu/chapter-378/, there are a few iframes with sandboxes
-        * where js code can't be injected to test accessibility. In order to eliminate those errors,
-        * the iframe is simply deleted. Based on my research it has no effect on accessibility.
-        * */
-
-        // let iframe_var = await page.$x("//iframe[contains(.,sandbox),contains(.,_url: 'about:blank')]");
-        // console.log(iframe_var.length);
-        // if (iframe_var.length > 0) {
-        //   for (let iframe of iframe_var) {
-        //     await page.evaluate(el => el.remove(), iframe).catch(err => {
-        //       if (err) {
-        //         console.log(`AxeRunner: Error removing iframe with sandbox attribute: ${err.toString()}`);
-        //       }
-        //     });
-        //   }
-        // }
-
-        // Disables iFrames. Puppeteer has an intermittent issue with iFrames to the point where
-        //it was affecting result output, so until that's resolved they should be disabled for the time being.
-        let axe_puppeteer = await new AxePuppeteer(page).disableFrame("*");
-
-        //if the user selected tags to use, it runs the .withTags() function, otherwise it doesn't.
-        if (tags.length > 1) {
-          axe_puppeteer = axe_puppeteer.withTags(tags);
+    const results = (await Promise.allSettled(
+      [...Array(urlList.length)].map(async (_, i) => {
+        try{
+          const driver = new WebDriver.Builder().forBrowser(`${name}`).build();
+          let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
+          return await new Promise(((resolve, reject) => {
+            driver.get(urlList[i].url).then(() => {
+              builder.analyze((err, results) => {
+                driver.quit();
+                if (err) {
+                  console.log(err);
+                  reject(err);
+                } else {
+                  resolve(results);
+                }
+              });
+            })
+          }));
+        } catch(e) {
+          req.send(e);
         }
-        inner_results = axe_puppeteer.analyze().catch(err => {
-          if (err) {
-            console.log(`AxeRunner: Error running Axe-Core on URL: ${url_list[i]}: ${err.toString()} `);
-          }
-        });
-
-        return ((inner_results.length === 0) ? null : inner_results);
-      })
-    )).filter(e => e.status === "fulfilled").map(e => e.value);
-    await browser.close();
-    console.log(results);
+      }))).filter(e => e.status === "fulfilled").map(e => e.value);
     const ace_result = [];
     for (let i = 0; i < results.length; i++) {
       try {
@@ -155,7 +144,11 @@ module.exports = {
         console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
       }
     }
-    return ace_result;
+    if(ace_result.length === 0){
+      req.status(500).json({error: "There was a problem with Axe"});
+    } else {
+      req.send(new CreateCSV(ace_result));
+    }
   }
 };
 
