@@ -38,14 +38,14 @@ function createFile(ace_result){
   // let fs = require('fs');
   // fs.writeFileSync('result.csv', "", callBack);
 
-  for(let result of ace_result){
-    let url = result.url;
+  for(let i = 0; i < ace_result.length; i++){
+    let url = ace_result[i].url;
     // let sections = ",Issue Id,WCAG SC,Description,Message,Impact,Relevant Code,Remediation,Sample Code";
     ret.push([`"${url}"`, "Issue Id","Description","Message","Impact","Relevant Code","Remediation","Sample Code\r\n"]);
     ret.push(["Violations:"]);
-    populate(result.violations);
+    populate(ace_result[i].violations);
     ret.push(["Incomplete:"]);
-    populate(result.incomplete);
+    populate(ace_result[i].incomplete);
     // fs.appendFileSync('result.csv', `${url}\n\n${sections}\n`, callBack);
     // fs.appendFileSync('result.csv', "Violations:\n", callBack2);
     // populate(result.violations);
