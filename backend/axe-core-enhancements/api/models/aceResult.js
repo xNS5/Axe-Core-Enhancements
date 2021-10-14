@@ -31,6 +31,18 @@ class AceResult{
     }
   }
 
+  getURL(){
+    return this._url;
+  }
+
+  getViolations(){
+    return this._violations;
+  }
+
+  getIncomplete(){
+    return this._incomplete;
+  }
+
   // get violation_nodes() {
   //   return this._violation_nodes;
   // }
