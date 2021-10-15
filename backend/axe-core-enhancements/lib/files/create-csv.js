@@ -16,7 +16,6 @@ function createFile(ace_result){
   let message;*/
   let ret = [];
   function populate(violations){
-    if(violations.length > 0){
       let count = 0;
         for(let violation of violations){
           ret.push(["WCAG SC"],[`"${violation.tags}"\r\n`]);
@@ -32,20 +31,20 @@ function createFile(ace_result){
             ret.push([`"${count+=1}"`,/*`${violation.tags}`,*/`"${violation.description}"`,`"${violation.impact}"`,`"${node.failureSummary}"`,`"${node.html.replaceAll(/\s\s+/g, ' ').replaceAll(/[,]/g, '').replaceAll(/\n/g, '')}"\r\n`]);
           }
         }
-    }
   }
 
   // let fs = require('fs');
   // fs.writeFileSync('result.csv', "", callBack);
 
   for(let i = 0; i < ace_result.length; i++){
-    let url = ace_result[i].url;
+    sails.log(ace_result);
+    let url = ace_result[i].getURL();
     // let sections = ",Issue Id,WCAG SC,Description,Message,Impact,Relevant Code,Remediation,Sample Code";
     ret.push([`"${url}"`, "Issue Id","Description","Message","Impact","Relevant Code","Remediation","Sample Code\r\n"]);
     ret.push(["Violations:"]);
-    populate(ace_result[i].violations);
+    populate(ace_result[i].getViolations());
     ret.push(["Incomplete:"]);
-    populate(ace_result[i].incomplete);
+    populate(ace_result[i].getIncomplete());
     // fs.appendFileSync('result.csv', `${url}\n\n${sections}\n`, callBack);
     // fs.appendFileSync('result.csv', "Violations:\n", callBack2);
     // populate(result.violations);

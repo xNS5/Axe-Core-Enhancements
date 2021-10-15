@@ -136,10 +136,10 @@ module.exports = {
           req.send(e);
         }
       }))).filter(e => e.status === "fulfilled").map(e => e.value);
-    const ace_result = [];
+   let ace_result = [];
     for (let i = 0; i < results.length; i++) {
       try {
-        ace_result.push(new AceResult(results[i].testEngine.name, results[i]));
+        ace_result[i] = new AceResult(results[i].testEngine.name, results[i]);
       } catch (err) {
         console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
       }
