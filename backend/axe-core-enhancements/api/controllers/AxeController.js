@@ -25,13 +25,15 @@
 
 // const {AxePuppeteer} = require('@axe-core/puppeteer');
 // const puppeteer = require('puppeteer');
-require('chromedriver');
-require('geckodriver');
+
 const AxeBuilder = require('@axe-core/webdriverjs');
 const WebDriver = require('selenium-webdriver');
+require('chromedriver');
+require('geckodriver');
 const { AceResult } = require('../models/aceResult.js');
 const { FirefoxProfile } = require('firefox-profile');
 const CreateCSV = require('../../lib/files/create-csv.js');
+
 
 module.exports = {
   friendlyName: 'axe-runner',
@@ -119,7 +121,14 @@ module.exports = {
     const results = (await Promise.allSettled(
       [...Array(urlList.length)].map(async (_, i) => {
         try{
-          const driver = new WebDriver.Builder().forBrowser(`${name}`).build();
+          let options;
+          if(name === 'chrome'){
+            options = WebDriver.Capabilities.chrome();
+          } else {
+            options = WebDriver.Capabilities.firefox();
+          }
+          options.setAcceptInsecureCerts(true);
+          const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(`${name}`).build();
           let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
           return await new Promise(((resolve, reject) => {
             driver.get(urlList[i].url).then(() => {

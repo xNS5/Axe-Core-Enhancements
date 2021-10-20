@@ -60,7 +60,7 @@ class AceResult{
     let wcag_level_regex = new RegExp('^(wcag)(21|2)(a){0,3}$');
 
     let ace_regex = new RegExp('^(ACT)$');
-    let best_practices_regex = new RegExp('^(best-practice)$')
+    let best_practices_regex = new RegExp('^(best-practice)$');
 
     if (violations.length > 0) {
       for (let i = 0; i < violations.length; i++) {
@@ -70,8 +70,8 @@ class AceResult{
           let new_tag;
           if((new RegExp('^(cat.*)').test(tag))){
             // Removes the Deque category tags, decrements j in order to not skip over tags
-              tags.splice(j, 1);
-              j-=1;
+            tags.splice(j, 1);
+            j-=1;
           } else {
             if (wcag_regex.test(tag)) { // Tests to see if the tag contains a WCAG SC
               /*  Original code used to splice WCAg info + hyperlink
@@ -79,19 +79,19 @@ class AceResult{
                  new_tag = `WCAG ${tag.slice(4).split('').join('.')}`;
                */
               let info = tag.slice(4).split('');
-              new_tag = "=hyperlink(\"\"" + getLinkToCriterion('2.1', info[0], info[1], info[2]) + "\"\", \"\"WCAG " + info.join('.') + "\"\")";
+              new_tag = '=hyperlink(""' + getLinkToCriterion('2.1', info[0], info[1], info[2]) + '"", ""WCAG ' + info.join('.') + '"")';
 
             } else if (wcag_level_regex.test(tag)) { // Tests to see if the tag is that of a level (e.g. wcag2a denoting WCAG 2A level violations)
-              if (tag.includes("1")){
+              if (tag.includes('1')){
                 new_tag = 'WCAG2.1 ';
               } else {
                 new_tag = 'WCAG2.0 ';
               }
               // Creates a dynamic number of "A"s depending on the input count
-              let level = "A".repeat(tag.length - (tag.indexOf((tag.includes("1") ? "1" : "2"))+1));
+              let level = 'A'.repeat(tag.length - (tag.indexOf((tag.includes('1') ? '1' : '2'))+1));
               new_tag += level;
 
-            } else if (tag.includes("section508")) {
+            } else if (tag.includes('section508')) {
               // Already matches "section508", so checks to see if there's a rule number after
               new_tag = `Section508 ${((tag.length === 10) ? '' : tag.slice(11).replaceAll('.', ''))}`;
             } else if (wcag_level_regex.test(tag)) {
@@ -101,13 +101,13 @@ class AceResult{
                 new_tag = 'WCAG2.0 ';
               }
               //The boolean determines where the string gets sliced
-              new_tag += ((tag.slice((new_tag === 'WCAG2.1 ') ? 6 : 5).length) === 1 ? "A" : "AA");
+              new_tag += ((tag.slice((new_tag === 'WCAG2.1 ') ? 6 : 5).length) === 1 ? 'A' : 'AA');
             } else if (ace_regex.test(tag)) {
               new_tag = `Accessibility Conformance Testing`;
             } else if (best_practices_regex.test(tag)) {
               new_tag = `Deque Best Practices`;
             }
-              violations[i].tags.splice(j, 1, (new_tag ? [new_tag] : [tag]));
+            violations[i].tags.splice(j, 1, (new_tag ? [new_tag] : [tag]));
           }
         }
       }
