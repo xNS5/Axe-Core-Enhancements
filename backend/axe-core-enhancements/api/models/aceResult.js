@@ -93,7 +93,7 @@ class AceResult{
 
             } else if (tag.includes('section508')) {
               // Already matches "section508", so checks to see if there's a rule number after
-              new_tag = `Section508 ${((tag.length === 10) ? '' : tag.slice(11).replaceAll('.', ''))}`;
+              new_tag = `Section508 ${((tag.length === 10) ? '' : tag.slice(11).replace('/./g', ''))}`;
             } else if (wcag_level_regex.test(tag)) {
               if ((new RegExp('^(wcag21)').test(tag))){
                 new_tag = 'WCAG2.1 ';

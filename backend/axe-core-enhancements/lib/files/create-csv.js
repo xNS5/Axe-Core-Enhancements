@@ -28,7 +28,7 @@ function createFile(ace_result){
             * impact = seriousness of the violation
             * code snippet of the area that's responsible for the violation
             * */
-            ret.push([`"${count+=1}"`,/*`${violation.tags}`,*/`"${violation.description}"`,`"${violation.impact}"`,`"${node.failureSummary}"`,`"${node.html.replaceAll(/\s\s+/g, ' ').replaceAll(/[,]/g, '').replaceAll(/\n/g, '')}"\r\n`]);
+            ret.push([`"${count+=1}"`,/*`${violation.tags}`,*/`"${violation.description}"`,`"${violation.impact}"`,`"${node.failureSummary}"`,`"${node.html.replace(/\s\s+/g, ' ').replace(/[,]/g, '').replace(/\n/g, '')}"\r\n`]);
           }
         }
   }
