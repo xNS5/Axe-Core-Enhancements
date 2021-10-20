@@ -25,6 +25,8 @@
 
 // const {AxePuppeteer} = require('@axe-core/puppeteer');
 // const puppeteer = require('puppeteer');
+require('chromedriver');
+require('geckodriver');
 const AxeBuilder = require('@axe-core/webdriverjs');
 const WebDriver = require('selenium-webdriver');
 const { AceResult } = require('../models/aceResult.js');
@@ -139,7 +141,7 @@ module.exports = {
    let ace_result = [];
     for (let i = 0; i < results.length; i++) {
       try {
-        ace_result[i] = new AceResult(results[i].testEngine.name, results[i]);
+        ace_result[i] = new AceResult(results[i].testEngine.name, results[i]);``
       } catch (err) {
         console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
       }
