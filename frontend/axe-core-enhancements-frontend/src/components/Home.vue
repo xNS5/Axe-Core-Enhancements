@@ -56,13 +56,13 @@
               <input type="checkbox" id="wcagAAA" name="wcagAAA" value="aaa" v-model="testForm.a3">
               <label for="wcagAAA"> AAA </label>
             </span>
-          </div>
-            <h3>Other Criteria</h3>
-            <input type="checkbox" id="best-practices" name="best-practices" value="best-practices" v-model="testForm.criteria">
-            <label for="best-practices"> Best Practices </label>
-            <input type="checkbox" id="section508" name="section508" value="section508" v-model="testForm.criteria">
-            <label for="section508"> Section 508 </label>
         </div>
+        <h3>Other Criteria</h3>
+        <input type="checkbox" id="best-practices" name="best-practices" value="best-practices" v-model="testForm.criteria">
+        <label for="best-practices"> Best Practices </label>
+        <input type="checkbox" id="section508" name="section508" value="section508" v-model="testForm.criteria">
+        <label for="section508"> Section 508 </label>
+      </div>
       <div class="column urlWrapper">
         <h2>Test Page</h2>
         <div class="testbuttons">
@@ -169,7 +169,8 @@ export default {
               this.testForm.urls = result;
               axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                   .then((result) => {
-                    this.createFile("Axe", result.data);
+                    this.createFile("Axe", result.data); 
+                    this.$emit('doneLoading');      
                     // console.log(result.data);
                   });
             })
@@ -177,11 +178,13 @@ export default {
             axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                 .then((result) => {
                   this.createFile("Axe", result.data);
+                  this.$emit('doneLoading');
                   // console.log(result.data);
                 })
           }
         }catch(e){
           alert(e.toString());
+          this.$emit('doneLoading');
         }
       }
     },

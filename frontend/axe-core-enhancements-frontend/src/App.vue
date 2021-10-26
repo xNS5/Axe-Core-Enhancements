@@ -1,7 +1,7 @@
 <template>
   <div id="App">
-    <Home v-show="run" v-on:loadAxe="startLoading()"/>
-    <Loading v-show="load" v-on:doneLoading="doneRunning()"/>
+    <Home v-show="run" v-on:loadAxe="startLoading()" v-on:doneLoading="doneRunning()"/>
+    <Loading v-show="load"/>
     <Complete v-show="complete" v-on:resetAxe="reset()"/>
   </div>
 </template>
@@ -132,7 +132,7 @@ Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> o
   top: 6px;
 }
 
-.runButton button{
+.runButton button, .restartButton button{
   font-size: 24px;
 }
 
