@@ -90,6 +90,15 @@ input[type=checkbox]{
   float: left;
 }
 
+.depthInput{
+  visibility: hidden;
+  margin-top: 15px;
+}
+
+input[type=number]{
+  width: 100px;
+}
+
 /*
 TODO: Make a button somewhere which credits both of these artists? The icons are free to use as long as we credit them.
 Trash Icon by <a href="https://freeicons.io/profile/3">freeicons</a> on <a href="https://freeicons.io">freeicons.io</a>
@@ -136,7 +145,7 @@ Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> o
   font-size: 24px;
 }
 
-.spider-box{
+.spider-box {
   padding-left: 10px;
   padding-right: 20px;
 }

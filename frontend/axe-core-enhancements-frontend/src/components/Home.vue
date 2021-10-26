@@ -2,7 +2,6 @@
   Add css for errors
   Put Run button bellow the rest of the form, centered on the page
   Put errors bellow the run button 
-  Make the layout a grid box 
 -->
 
 <template>
@@ -81,6 +80,10 @@
             <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0"><span class="icon"></span></button>
           </label>
         </span>
+        <div class="depthInput" id="depthInput">
+          <label for="spiderDepth" >Spider Depth: </label>
+          <input class="spiderDepth" type="number">
+        </div> 
       </div>
       </div>
     </div>
@@ -196,6 +199,7 @@ export default {
     },
     hideAddRemoveButtons(){
       document.getElementById("addTest").style.visibility = (this.spider === true) ? "visible" : "hidden";
+      document.getElementById("depthInput").style.visibility = (this.spider === true) ? "hidden" : "visible";
       for(let i = this.testForm.urls.length-1; i > 0; i--){
         this.removeTest(i);
       }
