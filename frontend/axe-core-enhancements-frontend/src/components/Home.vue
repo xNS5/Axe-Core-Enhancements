@@ -77,7 +77,7 @@
         <span class="row" v-for="(page, index) in testForm.urls" v-bind:key="index">
           <label for="URL@{{index}}">
             <input class="url" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="https://www.example.com">
-            <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest"><span class="icon"></span></button>
+            <button class="addTest" id="addTest" type="button" aria-label="add-icon" v-on:click="addTest"><span class="icon"></span></button>
             <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0"><span class="icon"></span></button>
           </label>
         </span>
@@ -196,9 +196,9 @@ export default {
     },
     hideAddRemoveButtons(){
       document.getElementById("addTest").style.visibility = (this.spider === true) ? "visible" : "hidden";
-     for(let i = this.testForm.urls.length-1; i > 0; i--){
-       this.removeTest(i);
-     }
+      for(let i = this.testForm.urls.length-1; i > 0; i--){
+        this.removeTest(i);
+      }
     }
   }
 }
