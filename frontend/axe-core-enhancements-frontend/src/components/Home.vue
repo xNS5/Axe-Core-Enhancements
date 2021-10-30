@@ -9,7 +9,7 @@
     <h1>WWU Axe-Core Enhancements</h1>
     <div id="errors" v-if="error.length">
       <h2>Please correct the following errors</h2>
-      <ul>
+      <ul class="errorList">
         <li v-for="e in error" v-bind:key="e.id">
           {{e}}
         </li>
@@ -82,7 +82,7 @@
         </span>
         <div class="depthInput" id="depthInput">
           <label for="spiderDepth" >Spider Depth: </label>
-          <input class="spiderDepth" type="number">
+          <input class="spiderDepth" type="number" v-model="this.spiderDepth" min="1" placeholder="200">
         </div> 
       </div>
       </div>
@@ -104,6 +104,7 @@ export default {
     return{
       error: [],
       spider:false,
+      spiderDepth:200,
       testForm: {
         engine:null,
         browser:null,
@@ -164,6 +165,9 @@ export default {
       if(this.testForm.criteria[0] === false && this.testForm.criteria[1] === false) {
         this.error.push("At least 1 WCAG level is required")
       }
+      if(this.spider && this.spiderDepth < 1) {
+        this.error.push("Spidering Depth must be greater than 0");
+      }
       if(this.error.length === 0) {
         this.$emit('loadAxe');
         try{
@@ -172,8 +176,9 @@ export default {
               this.testForm.urls = result;
               axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                   .then((result) => {
-                    this.createFile("Axe", result.data); 
+                    this.createFile("Axe", result.data);          
                     this.$emit('doneLoading');      
+                    console.log(this.spiderDepth);
                     // console.log(result.data);
                   });
             })
@@ -186,8 +191,8 @@ export default {
                 })
           }
         }catch(e){
+          this.$emit('resetAxe');
           alert(e.toString());
-          this.$emit('doneLoading');
         }
       }
     },

@@ -1,6 +1,6 @@
 <template>
   <div id="App">
-    <Home v-show="run" v-on:loadAxe="startLoading()" v-on:doneLoading="doneRunning()"/>
+    <Home v-show="run" v-on:loadAxe="startLoading()" v-on:doneLoading="doneRunning()" v-on:resetAxe="reset()"/>
     <Loading v-show="load"/>
     <Complete v-show="complete" v-on:resetAxe="reset()"/>
   </div>
@@ -170,6 +170,14 @@ select{
   content: "";
   display: table;
   clear: both;
+}
+
+.errorList{
+  list-style-type: none; 
+  padding: 0; 
+  margin: 0; 
+  font-size: 24px;
+  padding: 2px;
 }
 
 /*.add div{*/
