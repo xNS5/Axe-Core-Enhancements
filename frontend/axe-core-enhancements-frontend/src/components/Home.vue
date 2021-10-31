@@ -82,7 +82,7 @@
         </span>
         <div class="depthInput" id="depthInput">
           <label for="spiderDepth" >Spider Depth: </label>
-          <input class="spiderDepth" type="number" v-model="this.spiderDepth" min="1" placeholder="200">
+          <input class="spiderDepth" type="number" v-model="this.spiderDepth" min="1" placeholder="1">
         </div> 
       </div>
       </div>
@@ -166,23 +166,25 @@ export default {
         this.error.push("At least 1 WCAG level is required")
       }
       if(this.spider && this.spiderDepth < 1) {
-        this.error.push("Spidering Depth must be greater than 0");
+        this.error.push("Spider Depth must be greater than 0");
       }
       if(this.error.length === 0) {
         this.$emit('loadAxe');
         try{
           if(this.spider){
-            axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0].url).then((result) => {
+            axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0]).then((result) => {
+              console.log(result.data);
               this.testForm.urls = result;
+              console.log(this.testForm.urls);
               axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                   .then((result) => {
-                    this.createFile("Axe", result.data);          
-                    this.$emit('doneLoading');      
+                    this.createFile("Axe", result.data);
+                    this.$emit('doneLoading');
                     console.log(this.spiderDepth);
                     // console.log(result.data);
                   });
             })
-          } else {
+          })}else {
             axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                 .then((result) => {
                   this.createFile("Axe", result.data);

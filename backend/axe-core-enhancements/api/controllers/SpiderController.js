@@ -6,14 +6,13 @@
  */
 const {PythonShell} = require('python-shell');
 
-
-
 module.exports = {
   friendlyName: 'ace-spider',
   description: 'calls a python script to crawl through a website for URLS that match its base url',
 
   inputs: {
     url:{
+      description:"URL to be parsed by the spider",
       type: 'string',
       required: true
     }
@@ -22,13 +21,13 @@ module.exports = {
   runSpider: async function(inputs, req, res){
     let options = {
       mode: 'text',
-      pythonPath: '/usr/local/bin/python3',
-      scriptPath:  'scripts/sitecrawler',
+      pythonPath: 'lib/sitecrawler/venv/bin/python',
+      scriptPath:  'lib/sitecrawler',
       pythonOptions: ['-u'],
       args: inputs.body.url,
     };
     try {
-      console.log(options);
+      console.log("Spider Options", options);
       await PythonShell.run('LinkSpiderScript.py', options, function(err, results){
         if (err) {
           console.log(err);
