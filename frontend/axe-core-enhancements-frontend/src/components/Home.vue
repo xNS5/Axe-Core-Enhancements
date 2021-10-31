@@ -184,14 +184,13 @@ export default {
                     // console.log(result.data);
                   });
             })
-          })}else {
+          }else{
             axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                 .then((result) => {
                   this.createFile("Axe", result.data);
                   this.$emit('doneLoading');
                   // console.log(result.data);
-                })
-          }
+          })}
         }catch(e){
           this.$emit('resetAxe');
           alert(e.toString());
