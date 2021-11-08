@@ -82,7 +82,7 @@
         </span>
         <div class="depthInput" id="depthInput">
           <label for="spiderDepth" >Spider Depth: </label>
-          <input class="spiderDepth" type="number" v-model="this.spiderDepth" min="1" placeholder="1">
+          <input class="spiderDepth" type="number" v-model="this.testForm.spiderDepth" min="1" placeholder="1">
         </div> 
       </div>
       </div>
@@ -104,17 +104,19 @@ export default {
     return{
       error: [],
       spider:false,
-      spiderDepth:200,
       testForm: {
         engine:null,
         browser:null,
         a3: false,
         wcagLevel: [],
         criteria: [],
+        spiderDepth:200,
         urls: [
           {url: ''}
         ]
-      }
+      },
+      timeout:80000,
+      runComplete:false,
     }
   },
   methods: {
@@ -143,6 +145,7 @@ export default {
       link.click();
     },
     runAxe() {
+      this.runComplete = false;
       console.log("getAxe", this.testForm);
       this.error = [];
       if(!this.testForm.engine) {
@@ -170,6 +173,11 @@ export default {
       }
       if(this.error.length === 0) {
         this.$emit('loadAxe');
+        setTimeout(function() {
+          if(!this.runComplete) {
+            console.log("Timeout");
+          }
+        }, this.timeout);
         try{
           if(this.spider){
             axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0]).then((result) => {
@@ -179,8 +187,8 @@ export default {
               axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                   .then((result) => {
                     this.createFile("Axe", result.data);
+                    this.runComplete = true;
                     this.$emit('doneLoading');
-                    console.log(this.spiderDepth);
                     // console.log(result.data);
                   });
             })
@@ -188,6 +196,7 @@ export default {
             axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                 .then((result) => {
                   this.createFile("Axe", result.data);
+                  this.runComplete = true;
                   this.$emit('doneLoading');
                   // console.log(result.data);
           })}
