@@ -6,11 +6,10 @@
 
 <template>
   <div id="home" role="main">
-    <h1>WWU Axe-Core Enhancements</h1>
-    <div id="errors" v-if="error.length">
+    <div id="errors" v-if="formError.length">
       <h2>Please correct the following errors</h2>
       <ul class="errorList">
-        <li v-for="e in error" v-bind:key="e.id">
+        <li v-for="e in formError" v-bind:key="e.id">
           {{e}}
         </li>
       </ul>
@@ -102,7 +101,7 @@ export default {
   },
   data(){
     return{
-      error: [],
+      formError: [],
       spider:false,
       testForm: {
         engine:null,
@@ -147,31 +146,31 @@ export default {
     runAxe() {
       this.runComplete = false;
       console.log("getAxe", this.testForm);
-      this.error = [];
+      this.formError = [];
       if(!this.testForm.engine) {
-        this.error.push("Engine is required")
+        this.formError.push("Engine is required")
       }
       if(!this.testForm.browser) {
-        this.error.push("Browser is required")
+        this.formError.push("Browser is required")
       }
       for(let i = 0; i < this.testForm.urls.length; i++){
         if(this.testForm.urls[i].url === '') {
-          this.error.push("All urls are required")
+          this.formError.push("All urls are required")
           break
         }
         try {
           new URL(this.testForm.urls[i].url);
         } catch(e) {
-          this.error.push(this.testForm.urls[i].url  + " is an invalid URL");
+          this.formError.push(this.testForm.urls[i].url  + " is an invalid URL");
         }
       }
       if(this.testForm.criteria[0] === false && this.testForm.criteria[1] === false) {
-        this.error.push("At least 1 WCAG level is required")
+        this.formError.push("At least 1 WCAG level is required")
       }
       if(this.spider && this.spiderDepth < 1) {
-        this.error.push("Spider Depth must be greater than 0");
+        this.formError.push("Spider Depth must be greater than 0");
       }
-      if(this.error.length === 0) {
+      if(this.formError.length == 0) {
         this.$emit('loadAxe');
         setTimeout(function() {
           if(!this.runComplete) {
@@ -202,6 +201,8 @@ export default {
           })}
         }catch(e){
           this.$emit('resetAxe');
+          // Display errors
+          this.$emit('displayError', e.toString());
           alert(e.toString());
         }
       }

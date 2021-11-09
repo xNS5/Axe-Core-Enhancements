@@ -1,8 +1,11 @@
 <template>
   <div id="App">
-    <Home v-show="run" v-on:loadAxe="startLoading()" v-on:doneLoading="doneRunning()" v-on:resetAxe="reset()"/>
+    <h1>WWU Axe-Core Enhancements</h1>
+    <Home v-show="run" v-on:loadAxe="startLoading()" v-on:doneLoading="doneRunning()" v-on:resetAxe="reset()" v-on:displayError="loadError"/>
     <Loading v-show="load"/>
-    <Complete v-show="complete" v-on:resetAxe="reset()"/>
+    <Complete v-show="complete"/>
+    <Errors ref="errors" v-show="errors"/>
+    <Restart v-show="restart" v-on:resetAxe="reset()"/>
   </div>
 </template>
 
@@ -10,6 +13,8 @@
 import Home from './components/Home'
 import Loading from './components/Loading'
 import Complete from './components/Complete'
+import Errors from './components/Errors'
+import Restart from './components/RestartAxe'
 
 export default {
 
@@ -17,13 +22,18 @@ export default {
   components: {
     Home,
     Loading,
-    Complete
+    Complete,
+    Errors,
+    Restart
   },
   data() {
     return {
       run: true,
       load: false,
-      complete: false
+      complete: false,
+      errors: false,
+      restart: false,
+      errorList: []
     }
   },
   methods: {
@@ -31,16 +41,31 @@ export default {
       this.run = false;
       this.load = true;
       this.complete = false;
+      this.restart = false;
     },
     doneRunning() {
       this.run = false;
       this.load = false;
       this.complete = true;
+      this.restart = true;
     }, 
     reset() {
+      this.$refs.errors.clearErrors();
       this.run = true;
       this.load = false;
       this.complete = false;
+      this.errors = false;
+      this.restart = false;
+    },
+    loadError: function(args) {
+      for (let i = 0; i < args.length; i++) {
+        this.$refs.errors.addError(args[i]);
+      }
+      this.run = false;
+      this.load = false;
+      this.complete = false;
+      this.errors = true;
+      this.restart = true;
     }
   }
 }
