@@ -1,13 +1,28 @@
+<!-- TODO: 
+  Add css for errors
+  Put Run button bellow the rest of the form, centered on the page
+  Put errors bellow the run button 
+  Make the layout a grid box 
+-->
+
 <template>
   <div id="home" role="main">
     <h1>WWU Axe-Core Enhancements</h1>
-    <div id="mainContainer" class="row">
-      <div id="testSelection" class="column">
+    <div id="errors" v-if="error.length">
+      <h2>Please correct the following errors</h2>
+      <ul>
+        <li v-for="e in error" v-bind:key="e.id">
+          {{e}}
+        </li>
+      </ul>
+    </div>
+    <div class="row">
+      <div class="column">
         <div class="selectEngine">
           <h2>Testing Engine</h2>
           <!-- Engine choice drop down -->
           <label for="engine">Accessibility Testing Engine: </label>
-          <select name="engine" id="engine" v-model="testForm[0].engine">
+          <select name="engine" id="engine" v-model="testForm.engine">
             <option value="axecore"> Axe </option>
             <!--<option value="crest">Crest</option> Crest has not yet been released. Alternate engines can be added-->
           </select>
@@ -16,7 +31,7 @@
           <h2>Browser</h2>
           <!-- Browser choice drop down -->
           <label for="browser">Select a Web Browser: </label>
-          <select name="browser" id="browser" v-model="testForm[0].browser">
+          <select name="browser" id="browser" v-model="testForm.browser">
             <option value="chrome">Google Chrome</option>
             <!--<option value="edge">Microsoft Edge</option> Can be added at a later time, not natively supported through Puppeteer -->
             <option value="firefox">Firefox</option>
@@ -25,153 +40,162 @@
         <div class="selectTest">
           <h2>Testing Criteria</h2>
           <!-- Check boxes for WCAG levels -->
-          <div class="selectTEST.child.wcag">
-            <h3>WCAG</h3>
-            <input type="checkbox" id="wcagA" name="wcagA" v-model="testForm[0].criteria[0]">
-            <label for="wcagA" class="container"> A </label>
-            <input type="checkbox" id="wcagAA" name="wcagAA" v-model="testForm[0].criteria[1]">
-            <label for="wcagAA"> AA </label>
-<!--            <input type="checkbox" id="wcagAAA" name="wcagAAA" v-model="testForm[0].criteria[2]">-->
-<!--            <label for="wcagAAA"> AAA </label>-->
-<!--            TODO: implement features that search for WCAG SC for AAA-->
+            <span>
+              <h3>WCAG Version</h3>
+              <input type="checkbox" id="wcag2" name="wcag2" value="wcag2" v-model="testForm.wcagLevel">
+              <label for="wcag2" class="container"> 2.0 </label>
+              <input type="checkbox" id="wcag21" name="wcag2" value="wcag21" v-model="testForm.wcagLevel">
+              <label for="wcag21" class="container"> 2.1 </label>
+            </span>
+          <h3>WCAG Levels</h3>
+            <span>
+              <input type="checkbox" id="wcagA" name="wcagA" value="a" v-model="testForm.criteria">
+              <label for="wcagA" class="container"> A </label>
+              <input type="checkbox" id="wcagAA" name="wcagAA" value="aa" v-model="testForm.criteria">
+              <label for="wcagAA"> AA </label>
+              <input type="checkbox" id="wcagAAA" name="wcagAAA" value="aaa" v-model="testForm.a3">
+              <label for="wcagAAA"> AAA </label>
+            </span>
           </div>
-          <div class="selectTEST.child.other">
             <h3>Other Criteria</h3>
-            <input type="checkbox" id="best-practices" name="best-practices" v-model="testForm[0].criteria[3]">
+            <input type="checkbox" id="best-practices" name="best-practices" value="best-practices" v-model="testForm.criteria">
             <label for="best-practices"> Best Practices </label>
-            <input type="checkbox" id="section508" name="section508" v-model="testForm[0].criteria[4]">
+            <input type="checkbox" id="section508" name="section508" value="section508" v-model="testForm.criteria">
             <label for="section508"> Section 508 </label>
+        </div>
+      <div class="column urlWrapper">
+        <h2>Test Page</h2>
+        <div class="testbuttons">
+          <span class="runButton">
+            <button v-on:click="runAxe"> Run Ace </button>
+          </span>
+          <div class="spider-box">
+            <input type="checkbox" id="spider-box" name="spider-checkbox" value="spider" v-model="this.spider" v-on:click="hideAddRemoveButtons">
+            <label for="spider-box">Run Spider</label>
           </div>
         </div>
+        <span class="row" v-for="(page, index) in testForm.urls" v-bind:key="index">
+          <label for="URL@{{index}}">
+            <input class="url" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="https://www.example.com">
+            <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest"><span class="icon"></span></button>
+            <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0"><span class="icon"></span></button>
+          </label>
+        </span>
       </div>
-      <div id="selectURL" class="column">
-        <div class="inputPages">
-          <h2>Test Page</h2>
-          <div class="runButton">
-            <button v-on:click="runAxe"> Run </button>
-          </div>
-          <div v-for="(page, index) in testForm[0].pages" v-bind:key="index" class="row">
-            <label for="URL@{{index}}">
-              <div class="addButton">
-<!--                @TODO find a way to have additional url entries stacked + increase size of text box-->
-                <input v-model="page.url" type="text" id="URL@{{index}}" name="URL@{{index}}" placeholder="enter url">
-                <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest">
-                  <span class="icon"></span></button>
-              <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0">
-                <span class="icon"></span>
-              </button>
-              </div>
-            </label>
-            </div>
-
-            </div>
-          </div>
-        </div>
       </div>
+    </div>
 </template>
 
-<style>
-h1{
-  font-size: 40px;
-}
-h2{
-  font-size: 30px;
-}
-label{
-  font-size: 24px;
-  padding: 2px;
-}
-input[type=checkbox]{
-  -ms-transform: scale(1.5); /* IE */
-  -moz-transform: scale(1.5); /* FF */
-  -webkit-transform: scale(2); /* Safari and Chrome */
-  -o-transform: scale(2); /* Opera */
-  transform: scale(1.5);
-  padding: 12px;
-}
-
-input{
-  vertical-align: center;
-  position: relative;
-  top: -4px;
-}
-
-
-/*
-TODO: Make a button somewhere which credits both of these artists? The icons are free to use as long as we credit them.
-Trash Icon by <a href="https://freeicons.io/profile/3">freeicons</a> on <a href="https://freeicons.io">freeicons.io</a>
-Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> on <a href="https://freeicons.io">freeicons.io</a>*/
-.addTest span.icon{
-  background: url("../assets/icons/add.png") no-repeat center;
-  vertical-align: middle;
-  float: left;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: 0;
-  background-size: 100% 100%;
-}
-
-.removeTest span.icon{
-  background: url("../assets/icons/trash.png") no-repeat center;
-  vertical-align: middle;
-  float: left;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: 0;
-  background-size: 140% 140%;
-}
-
-select{
-  font-size: 20px;
-}
-
-.column {
-  float: left;
-  width: 50%;
-}
-
-.row:after {
-  display: table;
-}
-
-/*TODO: See how a border around the Test Engine, Browser selection, and criteria divs look.
-    Maybe do something along the same lines for the Test Page div*/
-/*.div .selectBrowser .selectEngine .selectTest{*/
-/*  border-style: solid;*/
-/*  border-color: #001c20;*/
-/*  border-width: 3px;*/
-/*}*/
-
-</style>
-
-
 <script>
+import axios from "axios";
+
 export default {
-  name:'Home',
+  title: 'WWU ACE',
+  metaInfo:{
+    title: 'WWU ACE',
+    htmlAttrs: {
+      lang: 'en'
+    }
+  },
   data(){
     return{
-      testForm: [{
+      error: [],
+      spider:false,
+      testForm: {
         engine:null,
         browser:null,
-        // @TODO change testing criteria to a list of strings instead
-        criteria:[false,false,false,false,false],
-        pages: [
+        a3: false,
+        wcagLevel: [],
+        criteria: [],
+        urls: [
           {url: ''}
         ]
-      }]
+      }
     }
   },
   methods: {
+    // testFile() {
+    //   axios({
+    //     url: 'http://localhost:1337/api/v1/get-file',
+    //     method: 'GET',
+    //     responseType: 'blob',
+    //   }).then((response) => {
+    //     const url = window.URL.createObjectURL(new Blob([response.data]));
+    //     const link = document.createElement('a');
+    //     link.href = url;
+    //     link.setAttribute('download', 'file.txt'); //or any other extension
+    //     document.body.appendChild(link);
+    //     link.click();
+    //   });
+    // },
+    createFile(name, data){
+      console.log("data", data);
+      const d = new Date();
+      const url = window.URL.createObjectURL(new Blob([data.map(e => e.join(","))], {type: 'text/csv;charset=utf-8;'}));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${name}-${d.getDate()}${((d.getUTCSeconds() + 11) % 12 + 1)}`+".csv"); //or any other extension
+      document.body.appendChild(link);
+      link.click();
+    },
     runAxe() {
       console.log("getAxe", this.testForm);
+      this.error = [];
+      if(!this.testForm.engine) {
+        this.error.push("Engine is required")
+      }
+      if(!this.testForm.browser) {
+        this.error.push("Browser is required")
+      }
+      for(let i = 0; i < this.testForm.urls.length; i++){
+        if(this.testForm.urls[i].url === '') {
+          this.error.push("All urls are required")
+          break
+        }
+        try {
+          new URL(this.testForm.urls[i].url);
+        } catch(e) {
+          this.error.push(this.testForm.urls[i].url  + " is an invalid URL");
+        }
+      }
+      if(this.testForm.criteria[0] === false && this.testForm.criteria[1] === false) {
+        this.error.push("At least 1 WCAG level is required")
+      }
+      if(this.error.length === 0) {
+        this.$emit('loadAxe');
+        try{
+          if(this.spider){
+            axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0].url).then((result) => {
+              this.testForm.urls = result;
+              axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
+                  .then((result) => {
+                    this.createFile("Axe", result.data);
+                    // console.log(result.data);
+                  });
+            })
+          } else {
+            axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
+                .then((result) => {
+                  this.createFile("Axe", result.data);
+                  // console.log(result.data);
+                })
+          }
+        }catch(e){
+          alert(e.toString());
+        }
+      }
     },
     addTest() {
-      this.testForm[0].pages.push({url: ''})
+      this.testForm.urls.push({url: ''})
     },
     removeTest(index) {
-      this.testForm[0].pages.splice(index, 1)
+      this.testForm.urls.splice(index, 1)
+    },
+    hideAddRemoveButtons(){
+      document.getElementById("addTest").style.visibility = (this.spider === true) ? "visible" : "hidden";
+     for(let i = this.testForm.urls.length-1; i > 0; i--){
+       this.removeTest(i);
+     }
     }
   }
 }

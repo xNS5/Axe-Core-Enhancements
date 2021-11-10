@@ -19,7 +19,10 @@ module.exports.routes = {
   *                                                                          *
   ***************************************************************************/
 
-  '/': { view: 'pages/homepage' },
+  // '/': { view: 'pages/homepage' },
+  'POST /api/v1/axe/axe-runner': {controller: 'AxeController', action: 'runAxe'},
+  'POST /api/v1/spider/spider-runner': {controller: 'SpiderController', action: 'runSpider'},
+  'GET /api/v1/get-file': { controller: 'FileController', action: 'sendfile' },
 
 
   /***************************************************************************
