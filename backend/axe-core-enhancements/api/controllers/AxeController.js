@@ -29,7 +29,7 @@ require('chromedriver');
 require('geckodriver');
 const { AceResult } = require('../models/aceResult.js');
 const CreateCSV = require('../../lib/files/create-csv.js');
-const {AxeResults} = require("axe-core");
+const {AxeResults} = require('axe-core');
 
 
 module.exports = {
@@ -110,7 +110,6 @@ module.exports = {
 
     for (let i = 0; i < criteria.length; i++) {
       if (wcag_regex.test(criteria[i])){
-        //@TODO use .map() to create 2a or 2aa depending on what it is
         if (tag1) {
           tags.push(tag1+criteria[i]);
         } if(tag2){
@@ -134,7 +133,6 @@ module.exports = {
           }
           options.setAcceptInsecureCerts(true);
           const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(`${name}`).build();
-
           let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
           return await new Promise(((resolve, reject) => {
             driver.get(urlList[i].url).then(() => {
@@ -154,45 +152,28 @@ module.exports = {
         }
       }))).filter(e => e.status === "fulfilled").map(e => e.value);
     if(is3A){
-      /*
-      * TODO: Determine what to put for impact level for AAA violations,
-      *  Set element to <body></body> to indicate the entire page
-      *
-      *Result Objects:
-      *
-      * interface NodeResult {
-      * html: string;
-      * impact?: ImpactValue;
-      * target: string[];
-      * xpath?: string[];
-      * ancestry?: string[];
-      * any: CheckResult[];
-      * all: CheckResult[];
-      * none: CheckResult[];
-      * failureSummary?: string;
-      * element?: HTMLElement;
-      * }
-      *
-      * interface Result {
-      * description: string;
-      * help: string;
-      * helpUrl: string;
-      * id: string;
-      * impact?: ImpactValue;
-      * tags: TagValue[];
-      * nodes: NodeResult[];
-      * }
-      *
-      * interface CheckResult {
-      * id: string;
-      * impact: string;
-      * message: string;
-      * data: any;
-      * relatedNodes?: RelatedNode[];
-      * }
-      *
-      * */
       const data = getCriterionByLevel((wcagLevel.length === 2 ? '2.0' : '2.1'), 3);
+      for(let i = 0; i < results.length; i++){
+        for(let j = 0; j < data.length; j++){
+          results[i].incomplete.push({
+            description:data[i].id,
+            help:data[j].description,
+            helpUrl: data[j].detailedReference,
+            id: data[j].id,
+            impact:'',
+            nodes:[{
+              all: [],
+              any: [],
+              failureSummary:'',
+              html:'<body></body>',
+              impact:'',
+              none:[],
+              target:[],
+            }],
+            tags:['wcag2aaa', 'wcag' + data[j].num.replaceAll('.','')],
+          });
+        }
+      }
     }
    let ace_result = [];
     for (let i = 0; i < results.length; i++) {
