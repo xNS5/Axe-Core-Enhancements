@@ -152,7 +152,7 @@ module.exports = {
         }
       }))).filter(e => e.status === "fulfilled").map(e => e.value);
     if(is3A){
-      const data = getCriterionByLevel((wcagLevel.length === 2 ? '2.0' : '2.1'), 3);
+      const data = getCriterionByLevel((wcagLevel.length === 2 ? '2.1' : '2.0'), 3);
       for(let i = 0; i < results.length; i++){
         for(let j = 0; j < data.length; j++){
           results[i].incomplete.push({
