@@ -84,6 +84,8 @@ module.exports = {
     const urlList = inputs.urls;
     const is3A = inputs.a3;
     const tags = [];
+    let boolList = [false, false, true];
+    let screenSizes = [[360,640],[601,962],[1024,768]];
     let tag1, tag2;
     let wcag_regex = new RegExp('^[a]{1,3}$')
     console.log(inputs)
@@ -120,32 +122,37 @@ module.exports = {
 
     const results = (await Promise.allSettled(
       [...Array(urlList.length)].map(async (_, i) => {
-        try{
-          let options;
-          if(name === 'chrome'){
-            options = WebDriver.Capabilities.chrome();
-          } else {
-            options = WebDriver.Capabilities.firefox();
+      for(let j = 0; j < boolList.length; j++){
+        if(boolList[j]){
+          try{
+            let options;
+            if(name === 'chrome'){
+              options = WebDriver.Capabilities.chrome();
+            } else {
+              options = WebDriver.Capabilities.firefox();
+            }
+            options.setAcceptInsecureCerts(true);
+            const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(`${name}`).build();
+            let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
+            return await new Promise(((resolve, reject) => {
+              driver.get(urlList[i].url).then(() => {
+                driver.manage().window().setRect({width: screenSizes[j][0], height: screenSizes[j][1], x:0, y:0,})
+                builder.analyze((err, results) => {
+                  driver.quit();
+                  if (err) {
+                    console.log(err);
+                    reject(err);
+                  } else {
+                    resolve(results);
+                  }
+                });
+              })
+            }));
+          } catch(e) {
+            req.send(e);
           }
-          options.setAcceptInsecureCerts(true);
-          const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(`${name}`).build();
-          let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
-          return await new Promise(((resolve, reject) => {
-            driver.get(urlList[i].url).then(() => {
-              builder.analyze((err, results) => {
-                driver.quit();
-                if (err) {
-                  console.log(err);
-                  reject(err);
-                } else {
-                  resolve(results);
-                }
-              });
-            })
-          }));
-        } catch(e) {
-          req.send(e);
         }
+      }
       }))).filter(e => e.status === "fulfilled").map(e => e.value);
    let ace_result = [];
     for (let i = 0; i < results.length; i++) {
