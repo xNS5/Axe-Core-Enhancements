@@ -12,12 +12,11 @@
  * @param urls: A list of URLs to be scanned
  */
 
-const AxeBuilder = require('@axe-core/webdriverjs');
-const WebDriver = require('selenium-webdriver');
 require('chromedriver');
 require('geckodriver');
+const AxeBuilder = require('@axe-core/webdriverjs');
+const WebDriver = require('selenium-webdriver');
 const { AceResult } = require('../models/aceResult.js');
-const { FirefoxProfile } = require('firefox-profile');
 const CreateCSV = require('../../lib/files/create-csv.js');
 
 
