@@ -66,11 +66,11 @@
           <h2>Resolutions</h2>
           <h3>Default: Desktop</h3>
           <input type="checkbox" id="mobile" value="mobile" v-model="testForm.resolution">
-          <label for="mobile">Mobile</label>
+          <label for="mobile"> Mobile </label>
           <input type="checkbox" id="tablet" value="tablet" v-model="testForm.resolution">
-          <label for="tablet">Tablet</label>
+          <label for="tablet"> Tablet </label>
           <input type="checkbox" id="desktop" value="desktop" v-model="testForm.resolution">
-          <label for="desktop">Desktop</label>
+          <label for="desktop"> Desktop </label>
         </div>
         <h2>Test Page</h2>
         <div class="testbuttons">
