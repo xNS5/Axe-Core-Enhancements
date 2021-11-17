@@ -78,8 +78,6 @@ module.exports = {
     let screenSizes = [[360,640],[601,962],[1024,768]];
     let tag1, tag2;
     let wcag_regex = new RegExp('^[a]{1,3}$')
-    console.log(inputs)
-
 
     //@TODO Remove tag1 and tag2
     if (wcagLevel.length === 0 || wcagLevel.length === 2) {
@@ -102,46 +100,50 @@ module.exports = {
       }
     }
 
-    // const tags = wcagLevel.flatMap(wcag => criteria.map(crit => {
-    //   if(wcag_regex.test(crit)){
-    //     return wcag + crit;
-    //   }
-    // }))
-
-    console.log(tags);
+    let options, browser;
+    switch(name){
+      case 'chrome':
+        options = WebDriver.Capabilities.chrome();
+        browser = WebDriver.Browser.CHROME;
+        break;
+      case 'firefox':
+        options = WebDriver.Capabilities.firefox();
+        browser = WebDriver.Browser.FIREFOX;
+        break;
+      /*case 'msedge':
+        options = WebDriver.Capabilities.edge();
+        browser = WebDriver.Browser.EDGE;
+        break;*/
+    }
 
     const results = (await Promise.allSettled(
-      [...Array(windowSizes.filter((x) => {return x;}).length)].map(async (_, j) => {
-        return await new Promise((resolve, reject) => {
-          [...Array(urlList.length)].map(async (_, i) => {
-            try{
-              let options;
-              if(name === 'chrome'){
-                options = WebDriver.Capabilities.chrome();
-              } else {
-                options = WebDriver.Capabilities.firefox();
-              }
-              options.setAcceptInsecureCerts(true);
-              const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(`${name}`).build();
-              let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
-              driver.get(urlList[i].url).then(() => {
-                driver.manage().window().setRect({width: screenSizes[j][0], height: screenSizes[j][1], x:0, y:0,}).then(() => {
-                  builder.analyze((err, results) => {
-                    driver.quit();
-                    if (err) {
-                      console.log(err);
-                      reject(err);
-                    } else {
-                      resolve(results);
-                    }
-                  });
-                })
-              })
-            } catch (e){
-              req.send(e);
-            }
-          })
-        })
+      [...Array(windowSizes.length)].map(async (_, j) => {
+       if(windowSizes[j]){
+         return await new Promise((resolve, reject) => {
+           [...Array(urlList.length)].map(async (_, i) => {
+             try{
+               options.setAcceptInsecureCerts(true);
+               const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(browser).build();
+               let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
+               driver.get(urlList[i].url).then(() => {
+                 driver.manage().window().setRect({width: screenSizes[j][0], height: screenSizes[j][1], x:0, y:0,}).then(() => {
+                   builder.analyze((err, results) => {
+                     driver.quit();
+                     if (err) {
+                       console.log(err);
+                       reject(err);
+                     } else {
+                       resolve(results);
+                     }
+                   });
+                 })
+               })
+             } catch (e){
+               req.send(e);
+             }
+           })
+         })
+       }
       })
     )).filter(e => e.status === "fulfilled").map(e => e.value);
    let ace_result = [];
