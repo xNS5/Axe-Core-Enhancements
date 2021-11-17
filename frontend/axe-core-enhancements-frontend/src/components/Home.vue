@@ -62,6 +62,16 @@
         <label for="section508"> Section 508 </label>
       </div>
       <div class="column urlWrapper">
+        <div class="resolution">
+          <h2>Resolutions</h2>
+          <h3>Default: Desktop</h3>
+          <input type="checkbox" id="mobile" value="mobile" v-model="testForm.resolution">
+          <label for="mobile">Mobile</label>
+          <input type="checkbox" id="tablet" value="tablet" v-model="testForm.resolution">
+          <label for="tablet">Tablet</label>
+          <input type="checkbox" id="desktop" value="desktop" v-model="testForm.resolution">
+          <label for="desktop">Desktop</label>
+        </div>
         <h2>Test Page</h2>
         <div class="testbuttons">
           <span class="runButton">
@@ -109,6 +119,7 @@ export default {
         a3: false,
         wcagLevel: [],
         criteria: [],
+        resolution: [],
         spiderDepth:200,
         urls: [
           {url: ''}
@@ -164,13 +175,16 @@ export default {
           this.formError.push(this.testForm.urls[i].url  + " is an invalid URL");
         }
       }
-      if(this.testForm.criteria[0] === false && this.testForm.criteria[1] === false) {
+      if(this.testForm.wcagLevel.length == 0) {
         this.formError.push("At least 1 WCAG level is required")
       }
-      if(this.spider && this.spiderDepth < 1) {
+      if(this.spider && this.testForm.spiderDepth < 1) {
         this.formError.push("Spider Depth must be greater than 0");
       }
       if(this.formError.length == 0) {
+        if(this.testForm.resolution.length == 0) {
+          this.testForm.resolution.push("desktop");
+        }
         this.$emit('loadAxe');
         setTimeout(function() {
           if(!this.runComplete) {
