@@ -5,8 +5,7 @@
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
 const {PythonShell} = require('python-shell');
-
-
+const path = require('path');
 
 module.exports = {
   friendlyName: 'ace-spider',
@@ -14,21 +13,29 @@ module.exports = {
 
   inputs: {
     url:{
+      description:"URL to be parsed by the spider",
       type: 'string',
       required: true
     }
   },
 
   runSpider: async function(inputs, req, res){
+    const platform = process.platform;
+    let path;
+    if(platform === "win32"){
+      path = '../../lib/winenv/Scripts/python';
+    } else {
+      path ='../../lib/venv/bin/python';
+    }
     let options = {
       mode: 'text',
-      pythonPath: '/usr/local/bin/python3',
-      scriptPath:  'scripts/sitecrawler',
+      pythonPath: path,
+      scriptPath: '../../lib/sitecrawler/',
       pythonOptions: ['-u'],
       args: inputs.body.url,
     };
+    console.log(process.env.PATH);
     try {
-      console.log(options);
       await PythonShell.run('LinkSpiderScript.py', options, function(err, results){
         if (err) {
           console.log(err);
@@ -38,8 +45,8 @@ module.exports = {
           req.send(results);
         }
       });
-    } catch {
-      console.log('error running python code');
+    } catch(e) {
+      console.log('error running python code: \r\n' + e);
     }
   }
 };

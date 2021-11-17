@@ -54,6 +54,7 @@ class HrefSpider(CrawlSpider):
     def close(self, reason):
         json_str = serialize().encode(self.valid_links)
         print(json_str)
+        sys.stdout.flush()
 
     def parse(self, response, **kwargs):
         if isinstance(response, TextResponse):

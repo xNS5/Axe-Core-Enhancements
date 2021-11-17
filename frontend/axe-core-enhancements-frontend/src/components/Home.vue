@@ -2,7 +2,6 @@
   Add css for errors
   Put Run button bellow the rest of the form, centered on the page
   Put errors bellow the run button 
-  Make the layout a grid box 
 -->
 
 <template>
@@ -10,7 +9,7 @@
     <h1>WWU Axe-Core Enhancements</h1>
     <div id="errors" v-if="error.length">
       <h2>Please correct the following errors</h2>
-      <ul>
+      <ul class="errorList">
         <li v-for="e in error" v-bind:key="e.id">
           {{e}}
         </li>
@@ -56,13 +55,13 @@
               <input type="checkbox" id="wcagAAA" name="wcagAAA" value="aaa" v-model="testForm.a3">
               <label for="wcagAAA"> AAA </label>
             </span>
-          </div>
-            <h3>Other Criteria</h3>
-            <input type="checkbox" id="best-practices" name="best-practices" value="best-practices" v-model="testForm.criteria">
-            <label for="best-practices"> Best Practices </label>
-            <input type="checkbox" id="section508" name="section508" value="section508" v-model="testForm.criteria">
-            <label for="section508"> Section 508 </label>
         </div>
+        <h3>Other Criteria</h3>
+        <input type="checkbox" id="best-practices" name="best-practices" value="best-practices" v-model="testForm.criteria">
+        <label for="best-practices"> Best Practices </label>
+        <input type="checkbox" id="section508" name="section508" value="section508" v-model="testForm.criteria">
+        <label for="section508"> Section 508 </label>
+      </div>
       <div class="column urlWrapper">
         <h2>Test Page</h2>
         <div class="testbuttons">
@@ -77,10 +76,14 @@
         <span class="row" v-for="(page, index) in testForm.urls" v-bind:key="index">
           <label for="URL@{{index}}">
             <input class="url" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="https://www.example.com">
-            <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest"><span class="icon"></span></button>
+            <button class="addTest" id="addTest" type="button" aria-label="add-icon" v-on:click="addTest"><span class="icon"></span></button>
             <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0"><span class="icon"></span></button>
           </label>
         </span>
+        <div class="depthInput" id="depthInput">
+          <label for="spiderDepth" >Spider Depth: </label>
+          <input class="spiderDepth" type="number" v-model="this.spiderDepth" min="1" placeholder="1">
+        </div> 
       </div>
       </div>
     </div>
@@ -101,6 +104,7 @@ export default {
     return{
       error: [],
       spider:false,
+      spiderDepth:200,
       testForm: {
         engine:null,
         browser:null,
@@ -161,26 +165,34 @@ export default {
       if(this.testForm.criteria[0] === false && this.testForm.criteria[1] === false) {
         this.error.push("At least 1 WCAG level is required")
       }
+      if(this.spider && this.spiderDepth < 1) {
+        this.error.push("Spider Depth must be greater than 0");
+      }
       if(this.error.length === 0) {
         this.$emit('loadAxe');
         try{
           if(this.spider){
-            axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0].url).then((result) => {
+            axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0]).then((result) => {
+              console.log(result.data);
               this.testForm.urls = result;
+              console.log(this.testForm.urls);
               axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                   .then((result) => {
                     this.createFile("Axe", result.data);
+                    this.$emit('doneLoading');
+                    console.log(this.spiderDepth);
                     // console.log(result.data);
                   });
             })
-          } else {
+          }else{
             axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                 .then((result) => {
                   this.createFile("Axe", result.data);
+                  this.$emit('doneLoading');
                   // console.log(result.data);
-                })
-          }
+          })}
         }catch(e){
+          this.$emit('resetAxe');
           alert(e.toString());
         }
       }
@@ -193,9 +205,10 @@ export default {
     },
     hideAddRemoveButtons(){
       document.getElementById("addTest").style.visibility = (this.spider === true) ? "visible" : "hidden";
-     for(let i = this.testForm.urls.length-1; i > 0; i--){
-       this.removeTest(i);
-     }
+      document.getElementById("depthInput").style.visibility = (this.spider === true) ? "hidden" : "visible";
+      for(let i = this.testForm.urls.length-1; i > 0; i--){
+        this.removeTest(i);
+      }
     }
   }
 }

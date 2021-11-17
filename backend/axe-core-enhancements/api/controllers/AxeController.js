@@ -22,17 +22,14 @@
 * however it will need to be installed post-deployment, most likely in a later release.
 * */
 
-
-// const {AxePuppeteer} = require('@axe-core/puppeteer');
-// const puppeteer = require('puppeteer');
-
 const AxeBuilder = require('@axe-core/webdriverjs');
 const WebDriver = require('selenium-webdriver');
+const {getCriterionByLevel} = require('wcag-reference-cjs');
 require('chromedriver');
 require('geckodriver');
 const { AceResult } = require('../models/aceResult.js');
-const { FirefoxProfile } = require('firefox-profile');
 const CreateCSV = require('../../lib/files/create-csv.js');
+const {AxeResults} = require('axe-core');
 
 
 module.exports = {
@@ -51,6 +48,22 @@ module.exports = {
     a3: {
       type: 'boolean',
       required: true
+    },
+    mobile: {
+      type: 'boolean',
+      required: false
+    },
+    tablet: {
+      type: 'boolean',
+      required: false
+    },
+    desktop: {
+      type: 'boolean',
+      required: false
+    },
+    custom: {
+      type: 'json',
+      required: false
     },
     wcagLevel: {
       type: 'json',
@@ -86,8 +99,6 @@ module.exports = {
     const tags = [];
     let tag1, tag2;
     let wcag_regex = new RegExp('^[a]{1,3}$')
-    console.log(inputs)
-
 
     //@TODO Remove tag1 and tag2
     if (wcagLevel.length === 0 || wcagLevel.length === 2) {
@@ -99,7 +110,6 @@ module.exports = {
 
     for (let i = 0; i < criteria.length; i++) {
       if (wcag_regex.test(criteria[i])){
-        //@TODO use .map() to create 2a or 2aa depending on what it is
         if (tag1) {
           tags.push(tag1+criteria[i]);
         } if(tag2){
@@ -109,12 +119,6 @@ module.exports = {
         tags.push(criteria[i]);
       }
     }
-
-    // const tags = wcagLevel.flatMap(wcag => criteria.map(crit => {
-    //   if(wcag_regex.test(crit)){
-    //     return wcag + crit;
-    //   }
-    // }))
 
     console.log(tags);
 
@@ -144,19 +148,43 @@ module.exports = {
             })
           }));
         } catch(e) {
-          req.send(e);
+          req.send(this.exits.error, {e});
         }
       }))).filter(e => e.status === "fulfilled").map(e => e.value);
+    if(is3A){
+      const data = getCriterionByLevel((wcagLevel.length === 2 ? '2.1' : '2.0'), 3);
+      for(let i = 0; i < results.length; i++){
+        for(let j = 0; j < data.length; j++){
+          results[i].incomplete.push({
+            description:data[i].id,
+            help:data[j].description,
+            helpUrl: data[j].detailedReference,
+            id: data[j].id,
+            impact:'',
+            nodes:[{
+              all: [],
+              any: [],
+              failureSummary:'',
+              html:'<body></body>',
+              impact:'',
+              none:[],
+              target:[],
+            }],
+            tags:['wcag2aaa', 'wcag' + data[j].num.replaceAll('.','')],
+          });
+        }
+      }
+    }
    let ace_result = [];
     for (let i = 0; i < results.length; i++) {
       try {
-        ace_result[i] = new AceResult(results[i].testEngine.name, results[i]);``
+        ace_result[i] = new AceResult(results[i].testEngine.name, results[i]);
       } catch (err) {
         console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
       }
     }
     if(ace_result.length === 0){
-      req.status(500).json({error: "There was a problem with Axe"});
+      req.send({error: "There was a problem with Axe"});
     } else {
       req.send(new CreateCSV(ace_result));
     }
