@@ -1,9 +1,3 @@
-<!-- TODO: 
-  Add css for errors
-  Put Run button bellow the rest of the form, centered on the page
-  Put errors bellow the run button 
--->
-
 <template>
   <div id="home" role="main">
     <div id="errors" v-if="formError.length">
@@ -125,7 +119,9 @@ export default {
           {url: ''}
         ]
       },
-      timeout:80000,
+      timeout:300000, // # minute * 60 seconds/minute * 1000 milliseconds/second = Timeout Length 
+                      // This length is currently set to 5 minutes
+      timeoutID:0,
       runComplete:false,
     }
   },
@@ -186,11 +182,6 @@ export default {
           this.testForm.resolution.push("desktop");
         }
         this.$emit('loadAxe');
-        setTimeout(function() {
-          if(!this.runComplete) {
-            console.log("Timeout");
-          }
-        }, this.timeout);
         try{
           if(this.spider){
             axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0]).then((result) => {
@@ -199,27 +190,50 @@ export default {
               console.log(this.testForm.urls);
               axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                   .then((result) => {
+                    this.setRunComplete(true);
+                    this.timeoutID = setTimeout(this.setRunComplete, this.timeout);
                     this.createFile("Axe", result.data);
-                    this.runComplete = true;
-                    this.$emit('doneLoading');
-                    // console.log(result.data);
+                    if(this.runComplete) {
+                      clearTimeout(this.timeoutID);
+                      this.$emit('doneLoading');
+                      
+                    }
+                    else {
+                      this.$emit('displayError', ["CSV creation request has timed out."]);
+                    }      
                   });
             })
-          }else{
+          }
+          else{
             axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                 .then((result) => {
+                  this.setRunComplete(true);
+                  console.log("test");
+                  this.timeoutID = setTimeout(this.setRunComplete, this.timeout);
                   this.createFile("Axe", result.data);
-                  this.runComplete = true;
-                  this.$emit('doneLoading');
-                  // console.log(result.data);
-          })}
-        }catch(e){
+                  if(this.runComplete) {
+                    clearTimeout(this.timeoutID);
+                    this.$emit('doneLoading');
+
+                  }
+                  else {
+                    this.$emit('displayError', ["CSV creation request has timed out."]);
+                  }             
+                })
+          }
+        }
+        catch(e){
           this.$emit('resetAxe');
-          // Display errors
           this.$emit('displayError', e.toString());
           alert(e.toString());
         }
       }
+    },
+    setRunComplete(){
+      if(arguments.length == 0)
+        this.runComplete = false;
+      else  
+        this.runComplete = arguments[0];
     },
     addTest() {
       this.testForm.urls.push({url: ''})
