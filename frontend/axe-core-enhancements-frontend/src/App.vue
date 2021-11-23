@@ -1,8 +1,11 @@
 <template>
   <div id="App">
-    <Home v-show="run" v-on:loadAxe="startLoading()"/>
-    <Loading v-show="load" v-on:doneLoading="doneRunning()"/>
-    <Complete v-show="complete" v-on:resetAxe="reset()"/>
+    <h1>WWU Axe-Core Enhancements</h1>
+    <Home v-show="run" v-on:loadAxe="startLoading()" v-on:doneLoading="doneRunning()" v-on:resetAxe="reset()" v-on:displayError="loadError"/>
+    <Loading v-show="load"/>
+    <Complete v-show="complete"/>
+    <Errors ref="errors" v-show="errors"/>
+    <Restart v-show="restart" v-on:resetAxe="reset()"/>
   </div>
 </template>
 
@@ -10,6 +13,8 @@
 import Home from './components/Home'
 import Loading from './components/Loading'
 import Complete from './components/Complete'
+import Errors from './components/Errors'
+import Restart from './components/RestartAxe'
 
 export default {
 
@@ -17,13 +22,18 @@ export default {
   components: {
     Home,
     Loading,
-    Complete
+    Complete,
+    Errors,
+    Restart
   },
   data() {
     return {
       run: true,
       load: false,
-      complete: false
+      complete: false,
+      errors: false,
+      restart: false,
+      errorList: []
     }
   },
   methods: {
@@ -31,16 +41,31 @@ export default {
       this.run = false;
       this.load = true;
       this.complete = false;
+      this.restart = false;
     },
     doneRunning() {
       this.run = false;
       this.load = false;
       this.complete = true;
+      this.restart = true;
     }, 
     reset() {
+      this.$refs.errors.clearErrors();
       this.run = true;
       this.load = false;
       this.complete = false;
+      this.errors = false;
+      this.restart = false;
+    },
+    loadError: function(args) {
+      for (let i = 0; i < args.length; i++) {
+        this.$refs.errors.addError(args[i]);
+      }
+      this.run = false;
+      this.load = false;
+      this.complete = false;
+      this.errors = true;
+      this.restart = true;
     }
   }
 }
@@ -90,6 +115,15 @@ input[type=checkbox]{
   float: left;
 }
 
+.depthInput{
+  visibility: hidden;
+  margin-top: 15px;
+}
+
+input[type=number]{
+  width: 100px;
+}
+
 /*
 TODO: Make a button somewhere which credits both of these artists? The icons are free to use as long as we credit them.
 Trash Icon by <a href="https://freeicons.io/profile/3">freeicons</a> on <a href="https://freeicons.io">freeicons.io</a>
@@ -132,11 +166,11 @@ Add Icon by <a href="https://freeicons.io/profile/723">DotFix Technologies</a> o
   top: 6px;
 }
 
-.runButton button{
+.runButton button, .restartButton button{
   font-size: 24px;
 }
 
-.spider-box{
+.spider-box {
   padding-left: 10px;
   padding-right: 20px;
 }
@@ -161,6 +195,14 @@ select{
   content: "";
   display: table;
   clear: both;
+}
+
+.errorList{
+  list-style-type: none; 
+  padding: 0; 
+  margin: 0; 
+  font-size: 24px;
+  padding: 2px;
 }
 
 /*.add div{*/

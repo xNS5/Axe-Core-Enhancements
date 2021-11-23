@@ -1,17 +1,9 @@
-<!-- TODO: 
-  Add css for errors
-  Put Run button bellow the rest of the form, centered on the page
-  Put errors bellow the run button 
-  Make the layout a grid box 
--->
-
 <template>
   <div id="home" role="main">
-    <h1>WWU Axe-Core Enhancements</h1>
-    <div id="errors" v-if="error.length">
+    <div id="errors" v-if="formError.length">
       <h2>Please correct the following errors</h2>
-      <ul>
-        <li v-for="e in error" v-bind:key="e.id">
+      <ul class="errorList">
+        <li v-for="e in formError" v-bind:key="e.id">
           {{e}}
         </li>
       </ul>
@@ -56,14 +48,24 @@
               <input type="checkbox" id="wcagAAA" name="wcagAAA" value="aaa" v-model="testForm.a3">
               <label for="wcagAAA"> AAA </label>
             </span>
-          </div>
-            <h3>Other Criteria</h3>
-            <input type="checkbox" id="best-practices" name="best-practices" value="best-practices" v-model="testForm.criteria">
-            <label for="best-practices"> Best Practices </label>
-            <input type="checkbox" id="section508" name="section508" value="section508" v-model="testForm.criteria">
-            <label for="section508"> Section 508 </label>
         </div>
+        <h3>Other Criteria</h3>
+        <input type="checkbox" id="best-practices" name="best-practices" value="best-practices" v-model="testForm.criteria">
+        <label for="best-practices"> Best Practices </label>
+        <input type="checkbox" id="section508" name="section508" value="section508" v-model="testForm.criteria">
+        <label for="section508"> Section 508 </label>
+      </div>
       <div class="column urlWrapper">
+        <div class="resolution">
+          <h2>Resolutions</h2>
+          <h3>Default: Desktop</h3>
+          <input type="checkbox" id="mobile" value="mobile" v-model="testForm.resolution">
+          <label for="mobile"> Mobile </label>
+          <input type="checkbox" id="tablet" value="tablet" v-model="testForm.resolution">
+          <label for="tablet"> Tablet </label>
+          <input type="checkbox" id="desktop" value="desktop" v-model="testForm.resolution">
+          <label for="desktop"> Desktop </label>
+        </div>
         <h2>Test Page</h2>
         <div class="testbuttons">
           <span class="runButton">
@@ -77,10 +79,14 @@
         <span class="row" v-for="(page, index) in testForm.urls" v-bind:key="index">
           <label for="URL@{{index}}">
             <input class="url" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="https://www.example.com">
-            <button class="addTest" type="button" aria-label="add-icon" v-on:click="addTest"><span class="icon"></span></button>
+            <button class="addTest" id="addTest" type="button" aria-label="add-icon" v-on:click="addTest"><span class="icon"></span></button>
             <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0"><span class="icon"></span></button>
           </label>
         </span>
+        <div class="depthInput" id="depthInput">
+          <label for="spiderDepth" >Spider Depth: </label>
+          <input class="spiderDepth" type="number" v-model="this.testForm.spiderDepth" min="1" placeholder="1">
+        </div> 
       </div>
       </div>
     </div>
@@ -99,7 +105,7 @@ export default {
   },
   data(){
     return{
-      error: [],
+      formError: [],
       spider:false,
       testForm: {
         engine:null,
@@ -107,10 +113,16 @@ export default {
         a3: false,
         wcagLevel: [],
         criteria: [],
+        resolution: [],
+        spiderDepth:200,
         urls: [
           {url: ''}
         ]
-      }
+      },
+      timeout:300000, // # minute * 60 seconds/minute * 1000 milliseconds/second = Timeout Length 
+                      // This length is currently set to 5 minutes
+      timeoutID:0,
+      runComplete:false,
     }
   },
   methods: {
@@ -139,51 +151,89 @@ export default {
       link.click();
     },
     runAxe() {
+      this.runComplete = false;
       console.log("getAxe", this.testForm);
-      this.error = [];
+      this.formError = [];
       if(!this.testForm.engine) {
-        this.error.push("Engine is required")
+        this.formError.push("Engine is required")
       }
       if(!this.testForm.browser) {
-        this.error.push("Browser is required")
+        this.formError.push("Browser is required")
       }
       for(let i = 0; i < this.testForm.urls.length; i++){
         if(this.testForm.urls[i].url === '') {
-          this.error.push("All urls are required")
+          this.formError.push("All urls are required")
           break
         }
         try {
           new URL(this.testForm.urls[i].url);
         } catch(e) {
-          this.error.push(this.testForm.urls[i].url  + " is an invalid URL");
+          this.formError.push(this.testForm.urls[i].url  + " is an invalid URL");
         }
       }
-      if(this.testForm.criteria[0] === false && this.testForm.criteria[1] === false) {
-        this.error.push("At least 1 WCAG level is required")
+      if(this.testForm.wcagLevel.length == 0) {
+        this.formError.push("At least 1 WCAG level is required")
       }
-      if(this.error.length === 0) {
+      if(this.spider && this.testForm.spiderDepth < 1) {
+        this.formError.push("Spider Depth must be greater than 0");
+      }
+      if(this.formError.length == 0) {
+        if(this.testForm.resolution.length == 0) {
+          this.testForm.resolution.push("desktop");
+        }
         this.$emit('loadAxe');
         try{
           if(this.spider){
-            axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0].url).then((result) => {
+            axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0]).then((result) => {
+              console.log(result.data);
               this.testForm.urls = result;
+              console.log(this.testForm.urls);
               axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                   .then((result) => {
+                    this.setRunComplete(true);
+                    this.timeoutID = setTimeout(this.setRunComplete, this.timeout);
                     this.createFile("Axe", result.data);
-                    // console.log(result.data);
+                    if(this.runComplete) {
+                      clearTimeout(this.timeoutID);
+                      this.$emit('doneLoading');
+                      
+                    }
+                    else {
+                      this.$emit('displayError', ["CSV creation request has timed out."]);
+                    }      
                   });
             })
-          } else {
+          }
+          else{
             axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                 .then((result) => {
+                  this.setRunComplete(true);
+                  console.log("test");
+                  this.timeoutID = setTimeout(this.setRunComplete, this.timeout);
                   this.createFile("Axe", result.data);
-                  // console.log(result.data);
+                  if(this.runComplete) {
+                    clearTimeout(this.timeoutID);
+                    this.$emit('doneLoading');
+
+                  }
+                  else {
+                    this.$emit('displayError', ["CSV creation request has timed out."]);
+                  }             
                 })
           }
-        }catch(e){
+        }
+        catch(e){
+          this.$emit('resetAxe');
+          this.$emit('displayError', e.toString());
           alert(e.toString());
         }
       }
+    },
+    setRunComplete(){
+      if(arguments.length == 0)
+        this.runComplete = false;
+      else  
+        this.runComplete = arguments[0];
     },
     addTest() {
       this.testForm.urls.push({url: ''})
@@ -193,9 +243,10 @@ export default {
     },
     hideAddRemoveButtons(){
       document.getElementById("addTest").style.visibility = (this.spider === true) ? "visible" : "hidden";
-     for(let i = this.testForm.urls.length-1; i > 0; i--){
-       this.removeTest(i);
-     }
+      document.getElementById("depthInput").style.visibility = (this.spider === true) ? "hidden" : "visible";
+      for(let i = this.testForm.urls.length-1; i > 0; i--){
+        this.removeTest(i);
+      }
     }
   }
 }
