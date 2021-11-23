@@ -13,7 +13,7 @@
         <div class="selectEngine">
           <h2>Testing Engine</h2>
           <!-- Engine choice drop down -->
-          <label for="engine">Accessibility Testing Engine: </label>
+          <label>Accessibility Testing Engine: </label>
           <select name="engine" id="engine" v-model="testForm.engine">
             <option value="axecore"> Axe </option>
             <!--<option value="crest">Crest</option> Crest has not yet been released. Alternate engines can be added-->
@@ -22,8 +22,8 @@
         <div class="selectBrowser">
           <h2>Browser</h2>
           <!-- Browser choice drop down -->
-          <label for="browser">Select a Web Browser: </label>
-          <select name="browser" id="browser" v-model="testForm.browser">
+          <label>Select a Web Browser: </label>
+          <select id="browser" v-model="testForm.browser">
             <option value="chrome">Google Chrome</option>
             <!--<option value="edge">Microsoft Edge</option> Can be added at a later time, not natively supported through Puppeteer -->
             <option value="firefox">Firefox</option>
@@ -84,8 +84,8 @@
           </label>
         </span>
         <div class="depthInput" id="depthInput">
-          <label for="spiderDepth" >Spider Depth: </label>
-          <input class="spiderDepth" type="number" v-model="this.testForm.spiderDepth" min="1" placeholder="1">
+          <label>Spider Depth: </label>
+          <input class="spiderDepth" type="number" v-model="this.spiderDepth" min="1" placeholder="1">
         </div> 
       </div>
       </div>
@@ -107,6 +107,7 @@ export default {
     return{
       formError: [],
       spider:false,
+      spiderDepth:10,
       testForm: {
         engine:null,
         browser:null,
@@ -114,7 +115,6 @@ export default {
         wcagLevel: [],
         criteria: [],
         resolution: [],
-        spiderDepth:200,
         urls: [
           {url: ''}
         ]
@@ -171,20 +171,20 @@ export default {
           this.formError.push(this.testForm.urls[i].url  + " is an invalid URL");
         }
       }
-      if(this.testForm.wcagLevel.length == 0) {
+      if(this.testForm.wcagLevel.length === 0) {
         this.formError.push("At least 1 WCAG level is required")
       }
       if(this.spider && this.testForm.spiderDepth < 1) {
         this.formError.push("Spider Depth must be greater than 0");
       }
-      if(this.formError.length == 0) {
-        if(this.testForm.resolution.length == 0) {
+      if(this.formError.length === 0) {
+        if(this.testForm.resolution.length === 0) {
           this.testForm.resolution.push("desktop");
         }
         this.$emit('loadAxe');
         try{
           if(this.spider){
-            axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0]).then((result) => {
+            axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0], this.testForm.spiderDepth).then((result) => {
               console.log(result.data);
               this.testForm.urls = result;
               console.log(this.testForm.urls);

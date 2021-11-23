@@ -45,7 +45,7 @@ module.exports = {
       type: 'json',
       required: false,
     },
-    windowSizes:{
+    resolutions:{
       type:'json',
       required:false,
     },
@@ -72,9 +72,10 @@ module.exports = {
     const criteria = inputs.criteria;
     const urlList = inputs.urls;
     const is3A = inputs.a3;
+    const resolutions = inputs.resolution;
     const tags = [];
-    const windowSizes = inputs.windowSizes;
-    let screenSizes = [[360,640],[601,962],[1024,768]];
+    const windowSizes = [false, false, false];
+    const screenSizes = [[360,640],[601,962],[1024,768]];
     let tag1, tag2;
     let wcag_regex = new RegExp('^[a]{1,3}$')
 
@@ -86,7 +87,7 @@ module.exports = {
       tag1 = wcagLevel[0];
     }
 
-    for (let i = 0; i < criteria.length; i++) {
+    for (let i = 0; i < criteria.length; i++){
       if (wcag_regex.test(criteria[i])){
         //@TODO use .map() to create 2a or 2aa depending on what it is
         if (tag1) {
@@ -96,6 +97,23 @@ module.exports = {
         }
       } else {
         tags.push(criteria[i]);
+      }
+    }
+    if(resolutions.length === 0){
+      windowSizes[2] = true;
+    } else {
+      for(let i = 0; i < resolutions.length; i++){
+        switch(resolutions[i]){
+          case "mobile":
+            windowSizes[0] = true;
+            break;
+          case "tablet":
+            windowSizes[1] = true;
+            break;
+          case "desktop":
+            windowSizes[2] = true;
+            break;
+        }
       }
     }
 
@@ -144,7 +162,7 @@ module.exports = {
          })
        }
       })
-    )).filter(e => e.status === "fulfilled").map(e => e.value);
+    )).filter(e => e.status === "fulfilled" && (e.value !== undefined && e.value !== null)).map(e => e.value);
    let ace_result = [];
     for (let i = 0; i < results.length; i++) {
       try {
