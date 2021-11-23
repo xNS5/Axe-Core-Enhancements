@@ -18,6 +18,7 @@ const AxeBuilder = require('@axe-core/webdriverjs');
 const WebDriver = require('selenium-webdriver');
 const { AceResult } = require('../models/aceResult.js');
 const CreateCSV = require('../../lib/files/create-csv.js');
+const {getCriterionByLevel} = require('wcag-reference-cjs');
 
 
 module.exports = {
@@ -36,6 +37,22 @@ module.exports = {
     a3: {
       type: 'boolean',
       required: true
+    },
+    mobile: {
+      type: 'boolean',
+      required: false
+    },
+    tablet: {
+      type: 'boolean',
+      required: false
+    },
+    desktop: {
+      type: 'boolean',
+      required: false
+    },
+    custom: {
+      type: 'json',
+      required: false
     },
     wcagLevel: {
       type: 'json',
@@ -89,7 +106,6 @@ module.exports = {
 
     for (let i = 0; i < criteria.length; i++){
       if (wcag_regex.test(criteria[i])){
-        //@TODO use .map() to create 2a or 2aa depending on what it is
         if (tag1) {
           tags.push(tag1+criteria[i]);
         } if(tag2){
@@ -168,10 +184,35 @@ module.exports = {
        }
       })
     )).filter(e => e.status === "fulfilled" && (e.value !== undefined && e.value !== null)).map(e => e.value);
+    if(is3A){
+      const data = getCriterionByLevel((wcagLevel.length === 2 ? '2.1' : '2.0'), 3);
+      for(let i = 0; i < results.length; i++){
+        for(let j = 0; j < data.length; j++){
+          results[i].incomplete.push({
+            description:data[i].id,
+            help:data[j].description,
+            helpUrl: data[j].detailedReference,
+            id: data[j].id,
+            impact:'',
+            nodes:[{
+              all: [],
+              any: [],
+              failureSummary:'',
+              html:'<body></body>',
+              impact:'',
+              none:[],
+              target:[],
+            }],
+            tags:['wcag2aaa', 'wcag' + data[j].num.replaceAll('.','')],
+          });
+        }
+      }
+    }
+    
    let ace_result = [];
     for (let i = 0; i < results.length; i++) {
       try {
-        ace_result[i] = new AceResult(results[i].testEngine.name, results[i]);``
+        ace_result[i] = new AceResult(results[i].testEngine.name, results[i]);
       } catch (err) {
         console.log(`AxeRunner: Error adding to AceResult array: ${err.toString()}`);
       }
