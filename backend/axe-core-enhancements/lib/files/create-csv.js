@@ -18,7 +18,17 @@ function createFile(ace_result){
   function populate(violations){
       let count = 0;
         for(let violation of violations){
-          ret.push(["WCAG SC"],[`"${violation.tags}"\r\n`]);
+          //ret.push(["WCAG SC"],[`"${violation.tags}"\r\n`]);
+          let primary = "";
+           let secondary = " ";
+           if(violation.tags.length > 1){
+            primary = violation.tags[0];
+            violation.tags.splice(0,1);
+            secondary = violation.tags;
+           }else{
+             primary = violation.tags[0];
+           }
+           primaryLinked = "=hyperlink(\"\"" + violation.helpUrl + "\"\"\, \"\"" + primary + "\"\")";
           for(let node of violation.nodes){
             /*
             * count = violation count
@@ -28,7 +38,8 @@ function createFile(ace_result){
             * impact = seriousness of the violation
             * code snippet of the area that's responsible for the violation
             * */
-            ret.push([`"${count+=1}"`,/*`${violation.tags}`,*/`"${violation.description}"`,`"${violation.impact}"`,`"${node.failureSummary}"`,`"${node.html.replace(/\s\s+/g, ' ').replace(/[,]/g, '').replace(/\n/g, '')}"\r\n`]);
+
+            ret.push(['',`"${count+=1}"`,`"${primaryLinked}"`,`"${secondary}"`,`"${violation.impact/*priotity*/}"`,`"${violation.description}"`,`"${node.html.replace(/\s\s+/g, ' ').replace(/[,]/g, '').replace(/\n/g, '')}"`,'',`"${node.failureSummary}",\r\n`]);
           }
         }
   }
@@ -39,11 +50,13 @@ function createFile(ace_result){
   for(let i = 0; i < ace_result.length; i++){
     sails.log(ace_result);
     let url = ace_result[i].getURL();
+    let pageTitle = ace_result[i].getTitle();
     // let sections = ",Issue Id,WCAG SC,Description,Message,Impact,Relevant Code,Remediation,Sample Code";
-    ret.push([`"${url}"`, "Issue Id","Description","Message","Impact","Relevant Code","Remediation","Sample Code\r\n"]);
-    ret.push(["Violations:"]);
+    ret.push([`"${url}"`,`Resolution: ${ace_result[i].getScreenWidth()}x${ace_result[i].getScreenHeight()}`,`\r\n`]);
+    ret.push([`"${pageTitle}"\r\n\r\n`,'', "Issue Id","WCAG SC","WCAG SC Secondary","Priority","Description","Relevant Code","Impact","Remediation","Sample Code","Screen Resolution\r\n"]);
+    ret.push(["Violations:\r\n"]);
     populate(ace_result[i].getViolations());
-    ret.push(["Incomplete:"]);
+    ret.push(["Incomplete:\r\n"]);
     populate(ace_result[i].getIncomplete());
     // fs.appendFileSync('result.csv', `${url}\n\n${sections}\n`, callBack);
     // fs.appendFileSync('result.csv', "Violations:\n", callBack2);

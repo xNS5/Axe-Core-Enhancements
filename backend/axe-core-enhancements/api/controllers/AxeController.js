@@ -1,35 +1,24 @@
 /**
  * AxeController
- *
- * @description :: Server-side actions for handling incoming requests.
- * @help        :: See https://sailsjs.com/docs/concepts/actions
+ * @author Michael Kennedy
+ * @description :: Server-side actions for handling Axe scans
+ * @help        :: See https://github.com/xNS5/Axe-Core-Enhancements/issues
+ * @param engine: A string denoting which accessibility engine to use. Currently only supports Deque Labs' Axe
+ * @param browser: A string denoting which browser to use for the scan
+ * @param a3: A specific check indicating whether or not Level 3 (AAA) checks should be added to the result object.
+ * @param wcagLevel: A JSON object indicating which WCAG version to use
+ * @param criteria: Other criterion (Best Practices, Section508)
+ * @param windowSizes: A JSON object containing booleans, indicating which screen size to test for (mobile, tablet, desktop)
+ * @param urls: A list of URLs to be scanned
  */
 
-/*
-* Axe Runner
-* Author: Michael Kennedy
-* Description: Driver function for the Axe-Core accessibility testing engine.
-* Parameters: name, tags, urlList.
-* Name: name of the browser to be used (either firefox, or chrome)
-* Tags: wcag success criteria
-* urlList: list of 1...* URLs to parse
-*
-* This application utilizes axe-core/puppeteer to run axe-core on the listed URLs.
-* Upon testing, the results from headless and non-headless puppeteer were the same, whereas headless selenium vs non-headless
-* yielded slightly different results.
-*
-* At this point in time, this only can use Firefox and Chrome. It's possible for puppeteer to use Microsoft Edge
-* however it will need to be installed post-deployment, most likely in a later release.
-* */
-
-const AxeBuilder = require('@axe-core/webdriverjs');
-const WebDriver = require('selenium-webdriver');
-const {getCriterionByLevel} = require('wcag-reference-cjs');
 require('chromedriver');
 require('geckodriver');
+const AxeBuilder = require('@axe-core/webdriverjs');
+const WebDriver = require('selenium-webdriver');
 const { AceResult } = require('../models/aceResult.js');
 const CreateCSV = require('../../lib/files/create-csv.js');
-const {AxeResults} = require('axe-core');
+const {getCriterionByLevel} = require('wcag-reference-cjs');
 
 
 module.exports = {
@@ -73,6 +62,10 @@ module.exports = {
       type: 'json',
       required: false,
     },
+    resolutions:{
+      type:'json',
+      required:false,
+    },
     urls: {
       type: 'json',
       required: true,
@@ -96,7 +89,10 @@ module.exports = {
     const criteria = inputs.criteria;
     const urlList = inputs.urls;
     const is3A = inputs.a3;
+    const resolutions = inputs.resolution;
     const tags = [];
+    const windowSizes = [false, false, false];
+    const screenSizes = [[360,640],[601,962],[1024,768]];
     let tag1, tag2;
     let wcag_regex = new RegExp('^[a]{1,3}$')
 
@@ -108,7 +104,7 @@ module.exports = {
       tag1 = wcagLevel[0];
     }
 
-    for (let i = 0; i < criteria.length; i++) {
+    for (let i = 0; i < criteria.length; i++){
       if (wcag_regex.test(criteria[i])){
         if (tag1) {
           tags.push(tag1+criteria[i]);
@@ -119,38 +115,75 @@ module.exports = {
         tags.push(criteria[i]);
       }
     }
+    if(resolutions.length === 0){
+      windowSizes[2] = true;
+    } else {
+      for(let i = 0; i < resolutions.length; i++){
+        switch(resolutions[i]){
+          case "mobile":
+            windowSizes[0] = true;
+            break;
+          case "tablet":
+            windowSizes[1] = true;
+            break;
+          case "desktop":
+            windowSizes[2] = true;
+            break;
+        }
+      }
+    }
 
-    console.log(tags);
+    let options, browser;
+    switch(name){
+      case 'chrome':
+        options = WebDriver.Capabilities.chrome();
+        browser = WebDriver.Browser.CHROME;
+        break;
+      case 'firefox':
+        options = WebDriver.Capabilities.firefox();
+        browser = WebDriver.Browser.FIREFOX;
+        break;
+      /*case 'msedge':
+        options = WebDriver.Capabilities.edge();
+        browser = WebDriver.Browser.EDGE;
+        break;*/
+    }
 
     const results = (await Promise.allSettled(
-      [...Array(urlList.length)].map(async (_, i) => {
-        try{
-          let options;
-          if(name === 'chrome'){
-            options = WebDriver.Capabilities.chrome();
-          } else {
-            options = WebDriver.Capabilities.firefox();
-          }
-          options.setAcceptInsecureCerts(true);
-          const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(`${name}`).build();
-          let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
-          return await new Promise(((resolve, reject) => {
-            driver.get(urlList[i].url).then(() => {
-              builder.analyze((err, results) => {
-                driver.quit();
-                if (err) {
-                  console.log(err);
-                  reject(err);
-                } else {
-                  resolve(results);
-                }
-              });
-            })
-          }));
-        } catch(e) {
-          req.send(this.exits.error, {e});
-        }
-      }))).filter(e => e.status === "fulfilled").map(e => e.value);
+      [...Array(windowSizes.length)].map(async (_, j) => {
+       if(windowSizes[j]){
+         return await new Promise((resolve, reject) => {
+           [...Array(urlList.length)].map(async (_, i) => {
+             try{
+               options.setAcceptInsecureCerts(true);
+               const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(browser).build();
+               let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
+               driver.get(urlList[i].url).then(() => {
+                 let title;
+                 driver.manage().window().setRect({width: screenSizes[j][0], height: screenSizes[j][1], x:0, y:0,}).then(() => {
+                   driver.getTitle().then((res) => {
+                     title = res;
+                   })
+                   builder.analyze((err, results) => {
+                     driver.quit();
+                     if (err) {
+                       console.log(err);
+                       reject(err);
+                     } else {
+                       results.pageTitle = title;
+                       resolve(results);
+                     }
+                   });
+                 })
+               })
+             } catch (e){
+               req.send(e);
+             }
+           })
+         })
+       }
+      })
+    )).filter(e => e.status === "fulfilled" && (e.value !== undefined && e.value !== null)).map(e => e.value);
     if(is3A){
       const data = getCriterionByLevel((wcagLevel.length === 2 ? '2.1' : '2.0'), 3);
       for(let i = 0; i < results.length; i++){
@@ -175,6 +208,7 @@ module.exports = {
         }
       }
     }
+    
    let ace_result = [];
     for (let i = 0; i < results.length; i++) {
       try {
@@ -184,7 +218,7 @@ module.exports = {
       }
     }
     if(ace_result.length === 0){
-      req.send({error: "There was a problem with Axe"});
+      req.status(500).json({error: "There was a problem with Axe"});
     } else {
       req.send(new CreateCSV(ace_result));
     }

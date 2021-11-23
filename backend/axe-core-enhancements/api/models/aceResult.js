@@ -24,11 +24,15 @@ class AceResult{
   constructor(engine, results/*, version*/) {
     if (engine === 'axe-core') {
       this._url = results.url;
-      // this.version = version;
+      this._dimensions = {height: results.testEnvironment['windowHeight'], width: results.testEnvironment['windowWidth']};
       this._violations = this.parseTags(results.violations);
       this._incomplete = this.parseTags(results.incomplete);
-      // console.log(this.violations);
+      this._title = results.pageTitle;
     }
+  }
+
+  getTitle(){
+    return this._title;
   }
 
   getURL(){
@@ -41,6 +45,18 @@ class AceResult{
 
   getIncomplete(){
     return this._incomplete;
+  }
+
+  getDimensions(){
+    return this._dimensions;
+  }
+
+  getScreenWidth(){
+    return this._dimensions['width']
+  }
+
+  getScreenHeight(){
+    return this._dimensions['height'];
   }
 
   // get violation_nodes() {
