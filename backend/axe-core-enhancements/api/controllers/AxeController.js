@@ -143,13 +143,18 @@ module.exports = {
                const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(browser).build();
                let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
                driver.get(urlList[i].url).then(() => {
+                 let title;
                  driver.manage().window().setRect({width: screenSizes[j][0], height: screenSizes[j][1], x:0, y:0,}).then(() => {
+                   driver.getTitle().then((res) => {
+                     title = res;
+                   })
                    builder.analyze((err, results) => {
                      driver.quit();
                      if (err) {
                        console.log(err);
                        reject(err);
                      } else {
+                       results.pageTitle = title;
                        resolve(results);
                      }
                    });
