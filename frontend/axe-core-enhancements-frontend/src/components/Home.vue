@@ -85,7 +85,7 @@
         </span>
         <div class="depthInput" id="depthInput">
           <label>Spider Depth: </label>
-          <input class="spiderDepth" type="number" v-model="this.spiderDepth" min="1" placeholder="1">
+          <input class="spiderDepth" type="number" v-model="this.spiderDepth.depth" min="0" max="10" placeholder="1">
         </div> 
       </div>
       </div>
@@ -107,7 +107,9 @@ export default {
     return{
       formError: [],
       spider:false,
-      spiderDepth:10,
+      spiderDepth: {
+            depth: 10
+      },
       testForm: {
         engine:null,
         browser:null,
@@ -184,10 +186,8 @@ export default {
         this.$emit('loadAxe');
         try{
           if(this.spider){
-            axios.post("http://localhost:1337/api/v1/spider/spider-runner/", this.testForm.urls[0], this.testForm.spiderDepth).then((result) => {
-              console.log(result.data);
-              this.testForm.urls = result;
-              console.log(this.testForm.urls);
+            axios.post("http://localhost:1337/api/v1/spider/spider-runner/", [this.testForm.urls[0], this.spiderDepth]).then((result) => {
+              this.testForm.urls = result.data['valid'];
               axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
                   .then((result) => {
                     this.setRunComplete(true);
@@ -196,11 +196,14 @@ export default {
                     if(this.runComplete) {
                       clearTimeout(this.timeoutID);
                       this.$emit('doneLoading');
-                      
+
                     }
                     else {
                       this.$emit('displayError', ["CSV creation request has timed out."]);
-                    }      
+                    }
+                    if(result.data['invalid'].length > 0){
+                      this.formError.push(`Invalid URLS: ${result.data['invalid']}`)
+                    }
                   });
             })
           }
@@ -230,7 +233,7 @@ export default {
       }
     },
     setRunComplete(){
-      if(arguments.length == 0)
+      if(arguments.length === 0)
         this.runComplete = false;
       else  
         this.runComplete = arguments[0];
