@@ -31,7 +31,7 @@ function createFile(ace_result){
     let url = ace_result[i].getURL();
     let pageTitle = ace_result[i].getTitle();
     ret.push([`"${url}"`,`Resolution: ${ace_result[i].getScreenWidth()}x${ace_result[i].getScreenHeight()}`,`\r\n`]);
-    ret.push([`"${pageTitle}"\r\n\r\n`,'', "Issue Id","WCAG SC","WCAG SC Secondary","Priority","Description","Relevant Code","Impact","Remediation","Sample Code","Screen Resolution\r\n"]);
+    ret.push([`"${pageTitle}"\r\n\r\n`,'', "Issue Id","WCAG SC","WCAG SC Secondary","Priority","Description","Relevant Code","Impact","Remediation","Sample Code\r\n"/*,"Screen Resolution\r\n"*/]);
     ret.push(["Violations:\r\n"]);
     populate(ace_result[i].getViolations());
     ret.push(["Incomplete:\r\n"]);
