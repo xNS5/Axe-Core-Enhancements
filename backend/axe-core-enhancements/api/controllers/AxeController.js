@@ -189,7 +189,7 @@ module.exports = {
       for(let i = 0; i < results.length; i++){
         for(let j = 0; j < data.length; j++){
           results[i].incomplete.push({
-            description:data[i].id,
+            description:data[j].id,
             help:data[j].description,
             helpUrl: data[j].detailedReference,
             id: data[j].id,
@@ -203,12 +203,12 @@ module.exports = {
               none:[],
               target:[],
             }],
-            tags:['wcag2aaa', 'wcag' + data[j].num.replaceAll('.','')],
+            tags:['wcag' + data[j].num.replaceAll('.','')],
           });
         }
       }
     }
-    
+
    let ace_result = [];
     for (let i = 0; i < results.length; i++) {
       try {
@@ -218,7 +218,7 @@ module.exports = {
       }
     }
     if(ace_result.length === 0){
-      req.status(500).json({error: "There was a problem with Axe"});
+      req.status(500).json({error: "There was a problem with the Axe Controller"});
     } else {
       req.send(new CreateCSV(ace_result));
     }
