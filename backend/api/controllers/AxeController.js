@@ -91,10 +91,15 @@ module.exports = {
     const is3A = inputs.a3;
     const resolutions = inputs.resolution;
     const tags = [];
-    const windowSizes = [false, false, false];
-    const screenSizes = [[360,640],[601,962],[1024,768]];
     let tag1, tag2;
     let wcag_regex = new RegExp('^[a]{1,3}$')
+
+    // https://www.hobo-web.co.uk/best-screen-size/#chartHeaderTitle
+    const windows = {
+      "desktop": [1600,900],
+      "tablet":[962,601],
+      "mobile":[360,780]
+    }
 
     //@TODO Remove tag1 and tag2
     if (wcagLevel.length === 0 || wcagLevel.length === 2) {
@@ -115,23 +120,6 @@ module.exports = {
         tags.push(criteria[i]);
       }
     }
-    if(resolutions.length === 0){
-      windowSizes[2] = true;
-    } else {
-      for(let i = 0; i < resolutions.length; i++){
-        switch(resolutions[i]){
-          case "mobile":
-            windowSizes[0] = true;
-            break;
-          case "tablet":
-            windowSizes[1] = true;
-            break;
-          case "desktop":
-            windowSizes[2] = true;
-            break;
-        }
-      }
-    }
 
     let options, browser;
     switch(name){
@@ -150,38 +138,36 @@ module.exports = {
     }
 
     const results = (await Promise.allSettled(
-      [...Array(windowSizes.length)].map(async (_, j) => {
-       if(windowSizes[j]){
-         return await new Promise((resolve, reject) => {
-           [...Array(urlList.length)].map(async (_, i) => {
-             try{
-               options.setAcceptInsecureCerts(true);
-               const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(browser).build();
-               let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
-               driver.get(urlList[i].url).then(() => {
-                 let title;
-                 driver.manage().window().setRect({width: screenSizes[j][0], height: screenSizes[j][1], x:0, y:0,}).then(() => {
-                   driver.getTitle().then((res) => {
-                     title = res;
-                   })
-                   builder.analyze((err, results) => {
-                     driver.quit();
-                     if (err) {
-                       console.log(err);
-                       reject(err);
-                     } else {
-                       results.pageTitle = title;
-                       resolve(results);
-                     }
-                   });
-                 })
-               })
-             } catch (e){
-               req.send(e);
-             }
-           })
-         })
-       }
+      [...Array(resolutions.length)].map(async (_, j) => {
+        return await new Promise((resolve, reject) => {
+          [...Array(urlList.length)].map(async (_, i) => {
+            try{
+              options.setAcceptInsecureCerts(true);
+              const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(browser).build();
+              let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
+              driver.get(urlList[i].url).then(() => {
+                let title;
+                driver.manage().window().setRect({width: windows[resolutions[j]][0], height: windows[resolutions[j]][1], x:0, y:0,}).then(() => {
+                  driver.getTitle().then((res) => {
+                    title = res;
+                  })
+                  builder.analyze((err, results) => {
+                    driver.quit();
+                    if (err) {
+                      console.log(err);
+                      reject(err);
+                    } else {
+                      results.pageTitle = title;
+                      resolve(results);
+                    }
+                  });
+                })
+              })
+            } catch (e){
+              req.send(e);
+            }
+          })
+        })
       })
     )).filter(e => e.status === "fulfilled" && (e.value !== undefined && e.value !== null)).map(e => e.value);
     if(is3A){
@@ -220,7 +206,7 @@ module.exports = {
     if(ace_result.length === 0){
       req.status(500).json({error: "There was a problem with the Axe Controller"});
     } else {
-      req.send(new CreateCSV(ace_result));
+      req.status(200).send(new CreateCSV(ace_result));
     }
   }
 };
