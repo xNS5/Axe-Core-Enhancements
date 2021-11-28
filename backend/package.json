@@ -5,42 +5,20 @@
   "description": "a Sails application",
   "keywords": [],
   "dependencies": {
-    "@axe-core/puppeteer": "^4.2.0",
     "@axe-core/webdriverjs": "^4.2.1",
-    "@babel/runtime": "^7.14.6",
-    "@sailshq/connect-redis": "^3.2.1",
     "@sailshq/lodash": "^3.10.3",
-    "@sailshq/socket.io-redis": "^5.2.0",
-    "ansi-regex": "^6.0.1",
-    "app-root-path": "^3.0.0",
-    "assert": "^2.0.0",
-    "async": "^3.2.0",
-    "async-limiter": "^2.0.0",
-    "axe-core": "^4.2.1",
-    "chromedriver": "^94.0.0",
-    "chromium": "^3.0.2",
-    "diff": "^5.0.0",
+    "chromedriver": "^96.0.0",
     "eslint": "^7.27.0",
-    "firefox-profile": "^4.2.0",
     "geckodriver": "^2.0.4",
-    "growl": "^1.10.5",
-    "grunt": "^1.4.0",
+    "grunt": "^1.4.1",
     "json2csv": "^5.0.6",
-    "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "path": "^0.12.7",
     "python-shell": "^3.0.0",
-    "redis": "^3.1.2",
-    "sails": "^1.4.2",
+    "sails": "^1.5.0",
     "sails-hook-grunt": "^4.0.0",
-    "sails-hook-orm": "^3.0.2",
     "sails-hook-sockets": "^2.0.1",
-    "selenium-webdriver": "^4.0.0-beta.3",
-    "socket.io": "^4.1.1",
-    "trim": "^1.0.1",
-    "underscore": "^1.13.1",
-    "wcag-reference-cjs": "^0.2.0",
-    "xmlhttprequest-ssl": "^1.6.2"
+    "selenium-webdriver": "^4.1.0",
+    "wcag-reference-cjs": "^0.2.0"
   },
   "scripts": {
     "start": "set NODE_ENV=production babel-node app.js",
@@ -57,8 +35,5 @@
   "license": "",
   "engines": {
     "node": "^16.0"
-  },
-  "devDependencies": {
-    "babelify": "^10.0.0"
   }
 }
