@@ -77,8 +77,8 @@
           </div>
         </div>
         <span class="row" v-for="(page, index) in testForm.urls" v-bind:key="index">
-          <label for="URL@{{index}}">
-            <input class="url" v-model="page.url" type="url" id="URL@{{index}}" name="URL@{{index}}" placeholder="https://www.example.com">
+          <label :for="index">
+            <input class="url" v-model="page.url" type="url" :id="index" :name="index" placeholder="https://www.example.com">
             <button class="addTest" id="addTest" type="button" aria-label="add-icon" v-on:click="addTest"><span class="icon"></span></button>
             <button class="removeTest" type="button" v-on:click="removeTest(index)" v-if="index !== 0"><span class="icon"></span></button>
           </label>
@@ -188,49 +188,35 @@ export default {
           if(this.spider){
             axios.post("http://localhost:1337/api/v1/spider/spider-runner/", [this.testForm.urls[0], this.spiderDepth]).then((result) => {
               this.testForm.urls = result.data['valid'];
-              axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
-                  .then((result) => {
-                    this.setRunComplete(true);
-                    this.timeoutID = setTimeout(this.setRunComplete, this.timeout);
-                    this.createFile("Axe", result.data);
-                    if(this.runComplete) {
-                      clearTimeout(this.timeoutID);
-                      this.$emit('doneLoading');
-
-                    }
-                    else {
-                      this.$emit('displayError', ["CSV creation request has timed out."]);
-                    }
-                    if(result.data['invalid'].length > 0){
-                      this.formError.push(`Invalid URLS: ${result.data['invalid']}`)
-                    }
-                  });
             })
           }
-          else{
-            axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
-                .then((result) => {
-                  this.setRunComplete(true);
-                  console.log("test");
-                  this.timeoutID = setTimeout(this.setRunComplete, this.timeout);
-                  this.createFile("Axe", result.data);
-                  if(this.runComplete) {
-                    clearTimeout(this.timeoutID);
-                    this.$emit('doneLoading');
-
-                  }
-                  else {
-                    this.$emit('displayError', ["CSV creation request has timed out."]);
-                  }             
-                })
-          }
+          this.postAxe();
         }
         catch(e){
+          this.$emit('doneLoading');
           this.$emit('resetAxe');
           this.$emit('displayError', e.toString());
-          alert(e.toString());
+          this.formError.push(e.toString());
         }
       }
+    },
+    postAxe(){
+      axios.post("http://localhost:1337/api/v1/axe/axe-runner", this.testForm)
+          .then((result) => {
+            this.setRunComplete(true);
+            this.timeoutID = setTimeout(this.setRunComplete, this.timeout);
+            this.createFile("Axe", result.data);
+            if(this.runComplete) {
+              clearTimeout(this.timeoutID);
+              this.$emit('doneLoading');
+            }
+            else {
+              this.$emit('displayError', ["CSV creation request has timed out."]);
+            }
+            if(result.data['invalid'].length > 0){
+              this.formError.push(`Invalid URLS: ${result.data['invalid']}`)
+            }
+          });
     },
     setRunComplete(){
       if(arguments.length === 0)
