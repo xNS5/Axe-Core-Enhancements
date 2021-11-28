@@ -164,7 +164,8 @@ module.exports = {
                 })
               })
             } catch (e){
-              req.send(e);
+              sails.log(e);
+              req.status(500).send(e.toString());
             }
           })
         })
