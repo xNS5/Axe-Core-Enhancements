@@ -76,9 +76,13 @@ module.exports = {
       statusCode: 201,
       description: 'Successfully checked website(s).'
     },
-    error: {
+    clientError: {
       statusCode: 400,
       description: 'Invalid Input.'
+    },
+    serverError: {
+      statusCode: 500,
+      description: 'Error with Axe Controller.'
     }
   },
 
@@ -88,7 +92,7 @@ module.exports = {
     const wcagLevel = inputs.wcagLevel;
     const criteria = inputs.criteria;
     const urlList = inputs.urls;
-    const is3A = inputs.a3;
+    const is3A = (inputs.a3 === "true");
     const resolutions = inputs.resolution;
     const tags = [];
     let tag1, tag2;
@@ -137,39 +141,49 @@ module.exports = {
         break;*/
     }
 
+    let data = [];
+    for(const url of urlList){
+      for(const res of resolutions){
+        data.push({url: url.url, w: windows[res][0], h: windows[res][1]})
+      }
+    }
+
     const results = (await Promise.allSettled(
-      [...Array(resolutions.length)].map(async (_, j) => {
-        return await new Promise((resolve, reject) => {
-          [...Array(urlList.length)].map(async (_, i) => {
-            try{
-              options.setAcceptInsecureCerts(true);
-              const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(browser).build();
-              let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
-              driver.get(urlList[i].url).then(() => {
-                let title;
-                driver.manage().window().setRect({width: windows[resolutions[j]][0], height: windows[resolutions[j]][1], x:0, y:0,}).then(() => {
-                  driver.getTitle().then((res) => {
-                    title = res;
-                  })
-                  builder.analyze((err, results) => {
-                    driver.quit();
-                    if (err) {
-                      console.log(err);
-                      reject(err);
-                    } else {
-                      results.pageTitle = title;
-                      resolve(results);
-                    }
-                  });
-                })
-              })
-            } catch (e){
-              sails.log(e);
-              req.status(500).send(e.toString());
-            }
-          })
-        })
-      })
+     [...Array(data.length)].map(async (_, i) => {
+       return await new Promise(async (resolve, reject) => {
+         try {
+           options.setAcceptInsecureCerts(true);
+           const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(browser).build();
+           let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
+           driver.get(data[i].url).then(() => {
+             let title;
+             driver.manage().window().setRect({
+               width: data[i].w,
+               height: data[i].h,
+               x: 0,
+               y: 0,
+             }).then(() => {
+               driver.getTitle().then((res) => {
+                 title = res;
+               })
+               builder.analyze((err, result) => {
+                 driver.close();
+                 if (err) {
+                   console.log(err);
+                   reject(err);
+                 } else {
+                   result.pageTitle = title;
+                   resolve(result);
+                 }
+               });
+             })
+           })
+         } catch (e) {
+           sails.log(e);
+           req.status(500).send(e.toString());
+         }
+       })
+     })
     )).filter(e => e.status === "fulfilled" && (e.value !== undefined && e.value !== null)).map(e => e.value);
     if(is3A){
       const data = getCriterionByLevel((wcagLevel.length === 2 ? '2.1' : '2.0'), 3);
@@ -195,7 +209,6 @@ module.exports = {
         }
       }
     }
-
    let ace_result = [];
     for (let i = 0; i < results.length; i++) {
       try {
