@@ -147,41 +147,41 @@ module.exports = {
         data.push({url: url.url, w: windows[res][0], h: windows[res][1]})
       }
     }
-
+    options.setAcceptInsecureCerts(true);
     const results = (await Promise.allSettled(
      [...Array(data.length)].map(async (_, i) => {
        return await new Promise(async (resolve, reject) => {
-         try {
-           options.setAcceptInsecureCerts(true);
-           const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(browser).build();
+         const driver = await new WebDriver.Builder().withCapabilities(options).forBrowser(browser).build();
            let builder = (tags.length === 0) ? (new AxeBuilder(driver)) : (new AxeBuilder(driver).withTags(tags));
            driver.get(data[i].url).then(() => {
-             let title;
              driver.manage().window().setRect({
                width: data[i].w,
                height: data[i].h,
                x: 0,
                y: 0,
              }).then(() => {
-               driver.getTitle().then((res) => {
-                 title = res;
-               })
-               builder.analyze((err, result) => {
-                 driver.close();
-                 if (err) {
-                   console.log(err);
-                   reject(err);
+               let title;
+               driver.getTitle().then((t) => {
+                 title = t;
+               }).then(() => {
+                 builder.analyze((err, result) => {
+                   if (err) {
+                     console.log(err);
+                     reject(err);
+                   } else {
+                     result.pageTitle = title;
+                     resolve(result);
+                   }
+               }).then(() => {
+                 if(browser !== WebDriver.Browser.FIREFOX){
+                   driver.close();
                  } else {
-                   result.pageTitle = title;
-                   resolve(result);
+                   driver.quit();
                  }
+               })
                });
              })
            })
-         } catch (e) {
-           sails.log(e);
-           req.status(500).send(e.toString());
-         }
        })
      })
     )).filter(e => e.status === "fulfilled" && (e.value !== undefined && e.value !== null)).map(e => e.value);
@@ -220,7 +220,7 @@ module.exports = {
     if(ace_result.length === 0){
       req.status(500).json({error: "There was a problem with the Axe Controller"});
     } else {
-      req.status(200).send(new CreateCSV(ace_result));
+      req.send(new CreateCSV(ace_result));
     }
   }
 };
