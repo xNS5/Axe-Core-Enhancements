@@ -12,7 +12,8 @@ from urllib.parse import urljoin, urlparse
 from pydispatch import dispatcher
 from json import JSONEncoder
 
-from zope.interface.exceptions import Invalid
+# from zope.interface.exceptions import Invalid
+
 
 
 class serialize(JSONEncoder):
@@ -82,6 +83,7 @@ class HrefSpider(CrawlSpider):
 
 
 
+sys.dont_write_bytecode = True
 logging.getLogger('scrapy').propagate = False
 process = CrawlerProcess()
 process.crawl(HrefSpider, url=sys.argv[1], default_depth=sys.argv[2])
