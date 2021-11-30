@@ -110,6 +110,7 @@ export default {
       spiderDepth: {
             depth: 10
       },
+      invalid_urls: [],
       testForm: {
         engine:null,
         browser:null,
@@ -144,6 +145,12 @@ export default {
     // },
     createFile(name, data){
       console.log("data", data);
+      if(this.invalid_urls.length > 0){
+        data.push(["\r\nInvalid URLs: \r\n"]);
+        for(let i = 0; i < this.invalid_urls.length; i++){
+          data.push([`${this.invalid_urls[i].url}\r\n`]);
+        }
+      }
       const d = new Date();
       const url = window.URL.createObjectURL(new Blob([data.map(e => e.join(","))], {type: 'text/csv;charset=utf-8;'}));
       const link = document.createElement('a');
@@ -185,12 +192,16 @@ export default {
         }
         this.$emit('loadAxe');
         try{
-          if(this.spider){
+          if(this.spider === true){
             axios.post("http://localhost:1337/api/v1/spider/spider-runner/", [this.testForm.urls[0], this.spiderDepth]).then((result) => {
+              console.log(result)
               this.testForm.urls = result.data['valid'];
-            })
+              this.invalid_urls = result.data['invalid'];
+              this.postAxe();
+            });
+          } else {
+            this.postAxe();
           }
-          this.postAxe();
         }
         catch(e){
           this.$emit('doneLoading');
@@ -209,6 +220,7 @@ export default {
             if(this.runComplete) {
               clearTimeout(this.timeoutID);
               this.$emit('doneLoading');
+              this.$emit('resetAxe');
             }
             else {
               this.$emit('displayError', ["CSV creation request has timed out."]);
