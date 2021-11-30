@@ -38,8 +38,13 @@ module.exports = {
           console.log(err);
         } else {
           // results is an array consisting of messages collected during execution
+          results.forEach((list) => {
+            list.forEach((url, i) => {
+              list[i] = {url: url};
+            })
+          });
           console.log('results', results);
-          req.send({valid: results[0], invalid: results[1]});
+          req.status(200).send({valid: results[0], invalid: results[1]});
         }
       });
     } catch(e) {
