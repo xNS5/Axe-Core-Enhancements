@@ -2,7 +2,7 @@
 
 The backend server uses SailsJS to run. To run the application, run the command sails lift. Alternatively, one can use the node package Nodemon to run the application by entering the command nodemon app.js in the backend directory. Before running, please make sure to install all dependencies by running npm install in the /backend/ directory.
 
-A word of caution: Currently the AxeController lacks the ability to rate limit how many browsers are run at a given time. If one were to run a crawl of a website and it returns 20+ URLs, the AxeController will attempt to run them all at the same time. This may result in a computer crashing if the user isn’t careful.
+**WARNING**: Currently the AxeController lacks the ability to rate limit how many browsers are run at a given time. If one were to run a crawl of a website and it returns 20+ URLs, the AxeController will attempt to run them all at the same time. This may result in a computer crashing if the user isn’t careful.
 
 
 ## AxeController.js
@@ -16,6 +16,9 @@ The axe controller takes the following parameters as input using a POST request:
 6. Resolutions -- A JSON object indicating which screen resolutions the user wishes to test for (Mobile, Tablet, Desktop)
 7. URLS -- the urls the user wishes to scan using Axe.
 
+Returning:
+CSV formatted accessibility scan data.
+
 The controller will then parse the inputs, determine which browser to use based on the string input, and open n - n*\3 browser sessions in parallel for each URL and screen resolution chosen in an asynchronous Promise. After each URL is loaded using Selenium webdriver, it will adjust the screen size to match the desired screen resolution. Once the screen is adjusted, it will analyze the screen and close once finished -- returning a list of AxeResult objects. The documentation of the result objects can be found on the Deque Labs Axe API documentation website. 
 
 If the user requested that level AAA checks be run on a page, the information will be pulled from the node package [wcag-reference-cjs](https://www.npmjs.com/package/wcag-reference-cjs) and will manually be added to each URL scanned. Axe itself tests for very few AAA-level WCAG violations, and the means to detect a violation in that category varies per system to the point where it would have to be reviewed by a human anyway Adding AAA violations to the Incomplete array in the AxeResult object will ultimately make it easier on a QA tester so they won’t have to reference W3C every time.
@@ -25,6 +28,9 @@ If the user requested that level AAA checks be run on a page, the information wi
 The Spider controller takes in 2 parameters in a POST request:
 1. URL -- Specifying a single page for the spider to scan for other related pages
 2. Depth -- the number of levels the spider should inspect before returning URLS
+
+Returning: 
+A list of 2 arrays: 1 containing valid URLs, the other containing invalid.
 
 
 The controller uses the node package python-shell to run a Scrapy python script located in `/lib/sitecrawler/`. To account for different users with different computers, two python virtual environments were created with Scrapy installed -- these virtual environments are referenced when running each web crawl. The Spider was a request made by the client to recursively search for URLs in `<a href=””/>` tags, and scan those. Once the Spider has found URLs, it prints to stdout which gets captured by the controller, and is subsequently returned to the frontend. The virtual environments are located in `/backend/lib/nixenv/` for unix-based operating systems and `/backend/lib/winenv` for windows operating systems.
@@ -38,9 +44,9 @@ This is a class that creates objects for each result. It takes in the following 
 3. Dimensions -- the resolution of the web browser used for the accessibility scan
 4. Violations -- an array containing the violations of an accessibility scan
 5. Incomplete -- an array containing incomplete accessibility scans, i.e. a check that usually requires a human to complete, such as checking for color contrast.
-Returning:
-1. An AceResult object containing the aforementioned attributes
 
+Returning:
+An AceResult object containing the aforementioned attributes
 
 The aceResult.js file is located in /api/models/. Each attribute has corresponding getter functions. This class also parses the WCAG tags that come with each violation/incomplete node. The tag formats can be found on the Deque Labs Axe-Core Github API page. The rest of the tags are currently discarded, however one can uncomment sections of the code that relate to the rest of the accessibility tags if they’re deemed necessary.
 
