@@ -36,3 +36,14 @@ This project will expand on the Axe Browser Extension's current capabilities to 
 [Backend Usage](https://github.com/xNS5/Axe-Core-Enhancements/blob/main/backend/README.md)
 
 [Frontend Usage](https://github.com/xNS5/Axe-Core-Enhancements/blob/main/frontend/README.md)
+
+
+# Common Errors
+
+* An error that can occur with the Spider relates to Sails not being able to locate the python path, or python isn’t added as an environment variable to the local system.
+* When running ACE, an error can and will occur if the correct browsers aren’t installed on the system. Selenium Webdriver doesn’t ship with browser binaries, but instead relies on the browsers being already installed on the local system.
+* In the event the backend errors out in the middle of running, the frontend will register a Network error in the frontend inspection console.
+* If the user is experiencing issues with the Spider on Windows, please ensure the required .whl files are installed.
+* In the event an error occurs with ACE, please create an issue. In the event there’s an error with wcag-reference-cjs, please create an issue in that repository. 
+* Firefox is run using Mozilla's Geckodriver. At some points when running a large number of browser sessions, a browser may quit and the console will output “Browsing context discarded”. This is an issue with geckodriver and cannot be remedied by our project.
+
