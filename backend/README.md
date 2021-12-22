@@ -49,7 +49,7 @@ The spider relies on the host machine having Python installed and added as an en
 If one wanted to add more functionality to both virtual environments, you’d need both a Unix machine and a Windows machine. To activate the Unix virtual environment, in the /lib/ directory, run the command `. nixenv/bin/activate`, and install the desired packages using pip. For a Windows environment, run in Powershell `. winenv/Scripts/activate`, and install the desired packages using pip. 
 
 
-## For Windows 10 Computers
+### For Windows 10 Computers
 
  Python for Windows is missing a few files which prevent the spider from running properly or installing Scrapy. Please follow these instructions to install them:
 1. Check your installed python version. Powershell: `python --version`.
