@@ -37,9 +37,7 @@ This project will expand on the Axe Browser Extension's current capabilities to 
 
 [Frontend Usage](https://github.com/xNS5/Axe-Core-Enhancements/blob/main/frontend/README.md)
 
-
-
-  ### Demonstration Video
+<h3 align="center"> Demonstration Video</h3>
 <p align="center">
   <a href="http://www.youtube.com/watch?v=pBowDT5dDmA"><img alt="Youtube Video Preview of the WWU ACE project video" src="http://img.youtube.com/vi/pBowDT5dDmA/0.jpg"></a>
 </p>
