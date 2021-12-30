@@ -1,4 +1,4 @@
-# Axe-Core-Enhancements
+# WWU Accessibility Engine (ACE)
 
 In a world designed for what’s considered the “average” person, people don’t stop and think about how the differently-abled will be affected by various design choices. This mentality unfortunately translates to the online world as well. Luckily there are a number of people in the world who are working hard to ensure that people of all abilities can use the internet. That’s where Axe comes in. Axe is an open source web accessibility tester which allows the user to test websites to check if they meet the Web Content Accessibility Guidelines (WCAG) -- a standardized set of rules that ensure a website is accessible to all people. Axe is a great tool, however it lacks certain abilities which would make the tool more effective.
 
