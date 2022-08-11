@@ -8,6 +8,8 @@ This product is a wrapper of the Deque Labs' aXe accessibility API. Currently no
 
 This project will expand on the Axe Browser Extension's current capabilities to allow Wadke Consulting an easier way to test the accessibility of their clients webpages. The program will include the ability to test multiple pages and specify which level of criteria it meets based on Web Content Accessibility Guidelines. The results will then be exported to an interface where the user can edit or add in other violations. Each WCAG violation will have a template response. Once the user is satisfied with the results, the data can be exported to a CSV file. 
 
+Please note that there are some dependency vulnerabilities in this project, so upgrade them at your own risk. 
+
 # System Requirements
 
 * Node.js: >16.0
@@ -26,9 +28,10 @@ This project will expand on the Axe Browser Extension's current capabilities to 
 
 
 # Future Features
-* Export results to a GUI
-* Hosted in a cloud platform
+* Export results to a human editable GUI (a la Google Sheets)
+* Hosted in a cloud platform for anyone to use
 * Ensure the program is accessibility engine agnostic
+   *  What this means in this context is reworking the project to ensure that integrating other accessibility testing engines as painless as possible. There are some javascript-based libraries which would be compatible, but there might need to be 
 * Integrate more testing engines
 
 # Usage
